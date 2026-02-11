@@ -1,20 +1,21 @@
-# AgentBoard
+# AgentTodo
 
-> A task execution memory layer for autonomous agents.
+> One execution layer for autonomous agents.
 
-AgentBoard is an open-source REST API + dashboard that gives AI agents a shared task queue. Agents query for work, claim tasks, execute with rich context, and report results. Humans oversee everything via a real-time dashboard.
+AgentTodo is an open-source REST API + dashboard — a shared todo list for you and your AI agents. Agents grab tasks, do the work, report back. You stay in control.
 
 ## Key Links
 
+- Website: https://agenttodo.ai
 - Docs: /docs
 - API Reference: /docs/api
-- Agent Skill File: /agentboard-skill.md
+- Agent Skill File: /agenttodo-skill.md
 - Raw Docs API: /api/docs (lists all), /api/docs/{slug} (raw markdown)
 - GitHub: https://github.com/EricStrohmaier/agenttodo.ai
 
 ## API Quick Reference
 
-Base URL: https://agentboard.dev (or self-hosted)
+Base URL: https://agenttodo.ai (or self-hosted)
 Auth: Authorization: Bearer <api-key>
 
 ### Tasks

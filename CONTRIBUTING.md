@@ -1,4 +1,4 @@
-# Contributing to AgentTodo
+# Contributing to AgentTodo.ai
 
 Thanks for your interest in contributing! Here's how to get started.
 
@@ -28,6 +28,7 @@ Thanks for your interest in contributing! Here's how to get started.
 ## Reporting Issues
 
 Open an issue on GitHub. Include:
+
 - What you expected vs what happened
 - Steps to reproduce
 - Browser/environment info if relevant
