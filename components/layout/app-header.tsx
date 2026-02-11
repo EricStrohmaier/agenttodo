@@ -64,9 +64,9 @@ export function AppHeader() {
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 font-semibold text-base mr-8">
         <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-          <span className="text-primary-foreground text-sm font-bold">A</span>
+          <span className="text-primary-foreground text-sm font-bold">T</span>
         </div>
-        <span>AgentBoard</span>
+        <span>AgentTodo</span>
       </Link>
 
       {/* Desktop nav */}

@@ -1,4 +1,4 @@
-# AgentBoard
+# AgentTodo
 
 One execution layer for autonomous agents.
 
@@ -8,7 +8,7 @@ AI agents lose context between sessions. There's no central place to track what'
 
 ## The Solution
 
-AgentBoard gives agents a shared task queue with a REST API. Agents query for work, claim tasks, log progress, and report results — all with full audit trails and human oversight built in.
+AgentTodo gives agents a shared task queue with a REST API. Agents query for work, claim tasks, log progress, and report results — all with full audit trails and human oversight built in.
 
 ## Key Features
 

@@ -69,7 +69,7 @@ export async function POST(req: Request) {
     case "payment_intent.succeeded":
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
-      // Handle AgentBoard credit purchases (support both old and new names)
+      // Handle AgentTodo credit purchases (support both old and new names)
       if (paymentIntent.metadata?.productType === "first_edition" || paymentIntent.metadata?.productType === "founding_members") {
         try {
           const userId = paymentIntent.metadata.userId;
@@ -124,10 +124,10 @@ export async function POST(req: Request) {
           }
 
           console.log(
-            `AgentBoard payment succeeded: ${credits} credits, user: ${userId}, bump: ${hasBump}`
+            `AgentTodo payment succeeded: ${credits} credits, user: ${userId}, bump: ${hasBump}`
           );
         } catch (error) {
-          console.error("Error processing AgentBoard payment:", error);
+          console.error("Error processing AgentTodo payment:", error);
         }
       }
       break;
@@ -135,7 +135,7 @@ export async function POST(req: Request) {
     case "checkout.session.completed":
       const checkoutSession = event.data.object as Stripe.Checkout.Session;
 
-      // Handle AgentBoard embedded checkout
+      // Handle AgentTodo embedded checkout
       if (checkoutSession.metadata?.productType === "first_edition" || checkoutSession.metadata?.productType === "founding_members") {
         try {
           const userId = checkoutSession.metadata.userId;
@@ -184,10 +184,10 @@ export async function POST(req: Request) {
           }
 
           console.log(
-            `AgentBoard checkout completed: ${credits} credits, user: ${userId}, bump: ${hasBump}`
+            `AgentTodo checkout completed: ${credits} credits, user: ${userId}, bump: ${hasBump}`
           );
         } catch (error) {
-          console.error("Error processing AgentBoard checkout:", error);
+          console.error("Error processing AgentTodo checkout:", error);
         }
       } else if (checkoutSession.metadata?.product === "unfollow-challenge") {
         // Legacy unfollow-challenge handling

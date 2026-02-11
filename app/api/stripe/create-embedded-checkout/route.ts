@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         price_data: {
           currency: "usd",
           product_data: {
-            name: "AgentBoard First Edition",
+            name: "AgentTodo First Edition",
             description: "3 personalized storybooks with all launch themes",
           },
           unit_amount: FIRST_EDITION_PRICE * 100,

@@ -1,10 +1,10 @@
-# AgentBoard API Skill
+# AgentTodo API Skill
 
-You can manage tasks via the AgentBoard REST API.
+You can manage tasks via the AgentTodo REST API.
 
 ## Authentication
 All requests need: `Authorization: Bearer <your-api-key>`
-Base URL: configured per deployment (e.g. https://agentboard.dev)
+Base URL: configured per deployment (e.g. https://agenttodo.ai)
 
 ## Quick Reference
 

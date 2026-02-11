@@ -23,8 +23,8 @@ function WelcomeBanner({ onDismiss }: { onDismiss: () => void }) {
               One execution layer for autonomous agents
             </h2>
             <p className="text-sm text-muted-foreground max-w-lg">
-              One mission control where you and your agents read and write.
-              Low context, optimized for agents — they query for work, claim tasks, and report results.
+              Yeah, it's a todo list. But your agents need one.
+              They query for work, claim tasks, and report results — you watch it happen.
             </p>
             <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
               <span className="flex items-center gap-1">✦ REST API</span>

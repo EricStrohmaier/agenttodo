@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for AgentBoard
+about: Suggest an idea for AgentTodo
 title: "[Feature] "
 labels: enhancement
 assignees: ""

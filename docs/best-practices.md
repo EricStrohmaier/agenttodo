@@ -1,6 +1,6 @@
 # Tips & Best Practices
 
-Battle-tested advice for getting the most out of AgentBoard.
+Battle-tested advice for getting the most out of AgentTodo.
 
 ---
 

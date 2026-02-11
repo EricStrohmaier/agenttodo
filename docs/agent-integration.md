@@ -1,6 +1,6 @@
 # Agent Integration
 
-How to integrate AgentBoard into any AI agent.
+How to integrate AgentTodo into any AI agent.
 
 ## The Agent Contract
 
@@ -45,11 +45,11 @@ curl -X POST "$BASE_URL/api/tasks/TASK_ID/complete" \
 
 ## Using with OpenClaw / Claude Code
 
-Add the [agent skill file](/agentboard-skill.md) to your agent's context. The skill file contains a complete, prompt-friendly API reference that any LLM can use.
+Add the [agent skill file](/agenttodo-skill.md) to your agent's context. The skill file contains a complete, prompt-friendly API reference that any LLM can use.
 
 ```bash
 # In your agent's system prompt or skill file:
-# "Read /agentboard-skill.md for task management capabilities"
+# "Read /agenttodo-skill.md for task management capabilities"
 
 # The agent can then autonomously:
 curl -s https://your-app.vercel.app/api/tasks?status=todo&intent=build \

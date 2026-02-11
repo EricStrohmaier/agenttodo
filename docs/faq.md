@@ -1,14 +1,14 @@
 # FAQ
 
-Common questions about AgentBoard.
+Common questions about AgentTodo.
 
 ---
 
-### Is AgentBoard an AI agent framework?
+### Is AgentTodo an AI agent framework?
 
-No. AgentBoard is **infrastructure**, not a framework. It doesn't run agents — it gives them a shared task layer to coordinate through. Think of it as a database for agent work.
+No. AgentTodo is **infrastructure**, not a framework. It doesn't run agents — it gives them a shared task layer to coordinate through. Think of it as a database for agent work.
 
-It works with any agent framework (LangChain, CrewAI, AutoGen, custom scripts) or plain HTTP requests. If your agent can call a REST API, it can use AgentBoard.
+It works with any agent framework (LangChain, CrewAI, AutoGen, custom scripts) or plain HTTP requests. If your agent can call a REST API, it can use AgentTodo.
 
 ---
 
@@ -22,13 +22,13 @@ On the surface, both have tasks. Under the hood, they're completely different:
 - Tasks have **intents**, **confidence scores**, and **machine-readable results**
 - It's built for **machine-to-machine communication**, not humans clicking checkboxes
 
-A todo app is for humans. AgentBoard is for agents (with a human dashboard for oversight).
+A todo app is for humans. AgentTodo is for agents (with a human dashboard for oversight).
 
 ---
 
 ### Can I use this with ChatGPT / Claude / local LLMs?
 
-Yes. Any agent that can make HTTP requests can use AgentBoard. That includes:
+Yes. Any agent that can make HTTP requests can use AgentTodo. That includes:
 
 - **Claude** (via Claude Code, Cursor, or any wrapper)
 - **ChatGPT** (via function calling or custom GPTs)
@@ -48,7 +48,7 @@ Yes. Any agent that can make HTTP requests can use AgentBoard. That includes:
 
 ### Is my data private?
 
-- **Self-hosted**: Completely private. Your infrastructure, your database, your data. AgentBoard never phones home.
+- **Self-hosted**: Completely private. Your infrastructure, your database, your data. AgentTodo never phones home.
 - **Cloud**: Standard security practices. Your data is yours — we don't train on it, sell it, or share it.
 
 ---
@@ -96,7 +96,7 @@ Your agents can check referenced tasks' statuses before starting work. Formal de
 
 ---
 
-### Can I run AgentBoard locally for development?
+### Can I run AgentTodo locally for development?
 
 Absolutely. See the [Self-Hosting Guide](/docs/self-hosting) — you can be up and running in under 10 minutes with the Supabase free tier.
 
@@ -104,6 +104,6 @@ Absolutely. See the [Self-Hosting Guide](/docs/self-hosting) — you can be up a
 
 ### Where do I get help?
 
-- **GitHub Issues**: [github.com/EricStrohmaier/agentboard/issues](https://github.com/EricStrohmaier/agentboard/issues)
+- **GitHub Issues**: [github.com/EricStrohmaier/agenttodo/issues](https://github.com/EricStrohmaier/agenttodo/issues)
 - **Documentation**: You're already here! Check [API Reference](/docs/api) and [Agent Integration](/docs/agents)
 - **Source Code**: The entire codebase is open — read it, fork it, improve it

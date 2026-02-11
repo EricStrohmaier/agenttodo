@@ -20,8 +20,8 @@ const monoFont = DM_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | AgentBoard",
-    default: "AgentBoard — One execution layer for autonomous agents",
+    template: "%s | AgentTodo",
+    default: "AgentTodo — One execution layer for autonomous agents",
   },
   description: siteConfig.description,
   keywords: siteConfig.keywords,

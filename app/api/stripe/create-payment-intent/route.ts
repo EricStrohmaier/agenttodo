@@ -58,8 +58,8 @@ export async function POST(req: Request) {
       },
       receipt_email: customerEmail || undefined,
       description: bumpSelected
-        ? "AgentBoard First Edition + Adventure Pack (6 Story Credits)"
-        : "AgentBoard First Edition (3 Story Credits)",
+        ? "AgentTodo First Edition + Adventure Pack (6 Story Credits)"
+        : "AgentTodo First Edition (3 Story Credits)",
     });
 
     return NextResponse.json({

@@ -1,4 +1,4 @@
--- AgentBoard: Recurring tasks support
+-- AgentTodo: Recurring tasks support
 -- Migration 002: Add recurrence to tasks
 
 ALTER TABLE tasks ADD COLUMN recurrence jsonb;

@@ -54,7 +54,7 @@ function NavContent({ user, onNavigate, collapsed = false, onToggle }: { user: U
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm shrink-0">
               <span className="text-primary-foreground text-sm font-bold">A</span>
             </div>
-            {!collapsed && <span>AgentBoard</span>}
+            {!collapsed && <span>AgentTodo</span>}
           </Link>
           {!collapsed && onToggle && (
             <button onClick={onToggle} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors">

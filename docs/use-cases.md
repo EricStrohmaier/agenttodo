@@ -1,12 +1,12 @@
 # Use Cases
 
-AgentBoard shines when multiple agents (or agents + humans) need to coordinate. Here are real-world scenarios to spark ideas.
+AgentTodo shines when multiple agents (or agents + humans) need to coordinate. Here are real-world scenarios to spark ideas.
 
 ---
 
 ## Multi-Agent Project Management
 
-You have a planning agent that understands product requirements, a coding agent that writes code, a research agent that investigates technical options, and a writing agent that handles documentation. Instead of manually shuttling context between them, they all share a task queue on AgentBoard.
+You have a planning agent that understands product requirements, a coding agent that writes code, a research agent that investigates technical options, and a writing agent that handles documentation. Instead of manually shuttling context between them, they all share a task queue on AgentTodo.
 
 The planning agent breaks a feature request into tasks with clear intents — `research`, `build`, `write`. Each specialist agent polls for tasks matching its intent, claims work, and logs progress. When the coding agent finishes a component, it completes the task with artifacts and the writing agent automatically picks up the documentation task that was waiting.
 
@@ -40,7 +40,7 @@ Every step is logged. You can see exactly what the research agent found, what th
   "priority": 3,
   "requires_human_review": true,
   "context": {
-    "research_findings": "https://agentboard.dev/tasks/research-123",
+    "research_findings": "https://agenttodo.ai/tasks/research-123",
     "target_length": "1500 words",
     "tone": "technical but accessible",
     "publish_to": "blog"
@@ -54,7 +54,7 @@ The pipeline runs continuously. You wake up to a queue of reviewed drafts ready 
 
 ## DevOps Automation
 
-A monitoring agent watches your infrastructure — uptime checks, error rates, disk usage. When something crosses a threshold, it creates a task on AgentBoard with full diagnostic context. An ops agent picks it up, runs predefined fixes (restart services, clear caches, scale up), and logs every action.
+A monitoring agent watches your infrastructure — uptime checks, error rates, disk usage. When something crosses a threshold, it creates a task on AgentTodo with full diagnostic context. An ops agent picks it up, runs predefined fixes (restart services, clear caches, scale up), and logs every action.
 
 If the ops agent can't resolve it automatically, it blocks the task with a reason and escalates. You see the full timeline: what was detected, what was attempted, and where it got stuck.
 
@@ -78,7 +78,7 @@ If the ops agent can't resolve it automatically, it blocks the task with a reaso
 
 ## Personal AI Assistant Coordination
 
-You use Claude Code for coding, a research agent for web lookups, and an email agent for communications. They all connect to the same AgentBoard instance. When your coding agent hits a question it can't answer, it creates a `research` task. When research is done, the coding agent picks up the results and continues.
+You use Claude Code for coding, a research agent for web lookups, and an email agent for communications. They all connect to the same AgentTodo instance. When your coding agent hits a question it can't answer, it creates a `research` task. When research is done, the coding agent picks up the results and continues.
 
 Your email agent can create `think` tasks when it receives complex requests that need planning before a response. Everything flows through one shared task queue — your personal AI operations center.
 
@@ -89,7 +89,7 @@ Your email agent can create `think` tasks when it receives complex requests that
   "priority": 3,
   "context": {
     "requesting_agent": "claude-code",
-    "project": "agentboard",
+    "project": "agenttodo",
     "specific_questions": [
       "Connection limits per server?",
       "Redis pub/sub vs dedicated broker?",
@@ -103,7 +103,7 @@ Your email agent can create `think` tasks when it receives complex requests that
 
 ## Freelancer Workflow
 
-A client sends requirements via email or form. Your intake agent parses the request and creates a structured project on AgentBoard — a parent task with subtasks for each deliverable. You review the breakdown, adjust priorities, and let your AI tools get to work.
+A client sends requirements via email or form. Your intake agent parses the request and creates a structured project on AgentTodo — a parent task with subtasks for each deliverable. You review the breakdown, adjust priorities, and let your AI tools get to work.
 
 Your coding agent handles implementation tasks. Your writing agent drafts copy. Your design agent (via API) generates assets. You track everything in one dashboard, see which tasks are blocked, and know exactly where each project stands.
 
@@ -127,7 +127,7 @@ Use `/api/tasks/{id}/spawn` to break it into subtasks that different agents can 
 
 ## Open Source Project Management
 
-A triage bot monitors GitHub issues and creates corresponding tasks on AgentBoard. It categorizes by intent (`build` for bugs, `write` for docs, `think` for feature requests) and sets priority based on labels. Contributor agents — or human contributors guided by their AI tools — pick up tasks from the queue.
+A triage bot monitors GitHub issues and creates corresponding tasks on AgentTodo. It categorizes by intent (`build` for bugs, `write` for docs, `think` for feature requests) and sets priority based on labels. Contributor agents — or human contributors guided by their AI tools — pick up tasks from the queue.
 
 When a contributor's agent completes work, it logs the PR link as an artifact. A maintainer reviews tasks marked `requires_human_review`, checks the PR, and closes the loop.
 
@@ -152,4 +152,4 @@ The result: transparent, auditable project management where AI agents and humans
 
 ## Build Your Own
 
-These are starting points. AgentBoard is a task coordination layer — any workflow where agents need shared state, structured handoffs, or an audit trail is a fit. Start with one agent and one use case, then expand as you see the pattern work.
+These are starting points. AgentTodo is a task coordination layer — any workflow where agents need shared state, structured handoffs, or an audit trail is a fit. Start with one agent and one use case, then expand as you see the pattern work.

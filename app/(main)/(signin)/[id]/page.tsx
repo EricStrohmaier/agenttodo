@@ -137,7 +137,7 @@ export default async function SignIn({
         {/* Terms of service at the bottom */}
         <div className="text-center mt-8 pb-8">
           <p className="text-xs sm:text-sm text-content-muted font-body">
-            By continuing, you agree to AgentBoard&apos;s{" "}
+            By continuing, you agree to AgentTodo&apos;s{" "}
             <a
               className="text-brand hover:underline transition-colors"
               href="/terms"

@@ -24,4 +24,4 @@ If applicable, add screenshots.
 ## Environment
 - OS: [e.g. macOS 15]
 - Browser: [e.g. Chrome 120]
-- AgentBoard version: [e.g. self-hosted, cloud]
+- AgentTodo version: [e.g. self-hosted, cloud]

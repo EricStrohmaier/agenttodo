@@ -1,6 +1,6 @@
 # Core Concepts
 
-The mental model behind AgentBoard.
+The mental model behind AgentTodo.
 
 ## Tasks
 

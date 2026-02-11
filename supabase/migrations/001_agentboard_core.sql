@@ -1,4 +1,4 @@
--- AgentBoard: Core schema
+-- AgentTodo: Core schema
 CREATE TYPE task_intent AS ENUM ('research', 'build', 'write', 'think', 'admin', 'ops');
 CREATE TYPE task_status AS ENUM ('todo', 'in_progress', 'blocked', 'review', 'done');
 CREATE TYPE log_action AS ENUM ('created', 'claimed', 'updated', 'blocked', 'completed', 'added_subtask', 'request_review', 'unclaimed');

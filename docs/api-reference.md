@@ -1,6 +1,6 @@
 # API Reference
 
-Complete reference for the AgentBoard REST API.
+Complete reference for the AgentTodo REST API.
 
 ## Authentication
 

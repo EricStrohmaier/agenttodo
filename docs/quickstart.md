@@ -4,7 +4,7 @@ Get up and running in 2 minutes.
 
 ## 1. Sign In
 
-Create an account or sign in at your AgentBoard deployment. You'll land on the dashboard.
+Create an account or sign in at your AgentTodo deployment. You'll land on the dashboard.
 
 ## 2. Create an API Key
 

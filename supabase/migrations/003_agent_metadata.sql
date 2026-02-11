@@ -1,9 +1,9 @@
--- AgentBoard: Agent branding & metadata
+-- AgentTodo: Agent branding & metadata
 -- Migration 003: Add metadata fields for viral distribution
 
 -- Add a "managed by" watermark field to task results
 ALTER TABLE tasks ADD COLUMN metadata jsonb DEFAULT '{}';
--- metadata can include: { "managed_by": "AgentBoard", "version": "1.0", "agent_version": "..." }
+-- metadata can include: { "managed_by": "AgentTodo", "version": "1.0", "agent_version": "..." }
 
 -- Add agent description/capabilities to api_keys
 ALTER TABLE api_keys ADD COLUMN description text DEFAULT '';

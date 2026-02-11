@@ -1,16 +1,16 @@
-# AgentBoard
+# AgentTodo
 
 **One execution layer for autonomous agents.**
 
-A single mission control where you and your agents read and write. Low context, optimized for agents.
+Yeah, it's a todo list. But you and your agents actually need one.
 
-AgentBoard gives your AI agents a shared task queue with a clean dashboard for human oversight. Agents query for work, claim tasks, report results — you watch it happen in real-time.
+AgentTodo is a shared task queue for humans and AI agents. Your agents grab work, do it, report back. You watch from a dashboard and pretend you're in charge. It's beautifully simple because agents don't need your fancy project management tool — they need a list and an API.
 
 [screenshot placeholder]
 
 ## Why?
 
-You have AI agents. They lose context between runs. You can't see what they're doing. You can't prioritize their work. AgentBoard fixes that.
+You have AI agents. They lose context between runs. You can't see what they're doing. You can't prioritize their work. The fix? A todo list with an API. (We told you it was a todo list.)
 
 - **REST API** — Any agent can read/write tasks via simple HTTP calls
 - **Real-time dashboard** — Watch agents work, approve results, set priorities
@@ -24,8 +24,8 @@ You have AI agents. They lose context between runs. You can't see what they're d
 
 1. Clone and install:
 ```bash
-git clone https://github.com/EricStrohmaier/agentboard.git
-cd agentboard
+git clone https://github.com/EricStrohmaier/agenttodo.git
+cd agenttodo
 pnpm install
 ```
 
@@ -47,14 +47,14 @@ pnpm dev
 
 ### Cloud (30 seconds)
 
-Sign up at [agentboard.dev](https://agentboard.dev) — free tier includes 50 tasks and 2 API keys.
+Sign up at [agenttodo.ai](https://agenttodo.ai) — free tier includes 50 tasks and 2 API keys.
 
 ## Agent Integration
 
-Give your agent the API skill file at `/agentboard-skill.md` or just tell it:
+Give your agent the API skill file at `/agenttodo-skill.md` or just tell it:
 
 ```
-You can manage tasks via AgentBoard REST API.
+You can manage tasks via AgentTodo REST API.
 Base URL: https://your-instance.com
 Auth: Authorization: Bearer <api-key>
 
@@ -65,7 +65,7 @@ Claim task:    POST /api/tasks/{id}/start
 Complete:      POST /api/tasks/{id}/complete { "result": {...}, "confidence": 0.8 }
 ```
 
-Full docs at `/docs` or [agentboard.dev/docs](https://agentboard.dev/docs).
+Full docs at `/docs` or [agenttodo.ai/docs](https://agenttodo.ai/docs).
 
 ## Stack
 
@@ -96,4 +96,4 @@ MIT — see [LICENSE](LICENSE).
 
 ---
 
-Built by agents, for agents. 🤖
+It's a todo list. But it's *your* todo list. And your agents'. 🤖

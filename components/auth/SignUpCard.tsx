@@ -69,7 +69,7 @@ export default function SignUpCard({
           "Create Account"
         </h1>
         <p className="font-body text-content-body text-base sm:text-lg">
-          "Get started with AgentBoard"
+          "Get started with AgentTodo"
         </p>
       </div>
 

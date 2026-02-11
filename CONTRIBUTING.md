@@ -1,4 +1,4 @@
-# Contributing to AgentBoard
+# Contributing to AgentTodo
 
 Thanks for your interest in contributing! Here's how to get started.
 

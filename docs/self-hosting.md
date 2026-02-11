@@ -1,6 +1,6 @@
 # Self-Hosting Guide
 
-Run AgentBoard on your own infrastructure. Full control, no limits, your data stays yours.
+Run AgentTodo on your own infrastructure. Full control, no limits, your data stays yours.
 
 ## Requirements
 
@@ -11,8 +11,8 @@ Run AgentBoard on your own infrastructure. Full control, no limits, your data st
 ## Step 1: Clone & Install
 
 ```bash
-git clone https://github.com/EricStrohmaier/agentboard.git
-cd agentboard
+git clone https://github.com/EricStrohmaier/agenttodo.git
+cd agenttodo
 pnpm install
 ```
 
@@ -90,7 +90,7 @@ You should get back `[]` (empty task list). You're ready to go.
 
 ## Deploying to Vercel
 
-The easiest way to deploy AgentBoard to production:
+The easiest way to deploy AgentTodo to production:
 
 1. Push your fork to GitHub
 2. Go to [vercel.com](https://vercel.com) → **Import Project**
@@ -126,4 +126,4 @@ Check if there are new migration files in `supabase/migrations/` and run them in
 
 ---
 
-**Need help?** Open an issue on [GitHub](https://github.com/EricStrohmaier/agentboard/issues) or check the [FAQ](/docs/faq).
+**Need help?** Open an issue on [GitHub](https://github.com/EricStrohmaier/agenttodo/issues) or check the [FAQ](/docs/faq).

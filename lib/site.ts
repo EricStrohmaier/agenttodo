@@ -1,12 +1,12 @@
 export const siteConfig = {
-  name: "AgentBoard",
-  domain: "agentboard.dev",
-  supportEmail: "support@agentboard.dev",
+  name: "AgentTodo",
+  domain: "agenttodo.ai",
+  supportEmail: "support@agenttodo.ai",
   subtitle: "One execution layer for autonomous agents",
   description:
-    "AgentBoard — one execution layer for autonomous agents. A single mission control where you and your agents read and write. Low context, optimized for agents.",
-  url: "https://agentboard.dev",
-  ogImage: "https://agentboard.dev/og-image.png",
+    "AgentTodo — one execution layer for autonomous agents. A single mission control where you and your agents read and write. Low context, optimized for agents.",
+  url: "https://agenttodo.ai",
+  ogImage: "https://agenttodo.ai/og-image.png",
   links: {
     twitter: "",
     github: "",
@@ -14,7 +14,7 @@ export const siteConfig = {
     signIn: "/signin",
   },
   keywords: [
-    "AgentBoard",
+    "AgentTodo",
     "agent execution layer",
     "AI agents",
     "autonomous agents",
