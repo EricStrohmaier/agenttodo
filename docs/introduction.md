@@ -22,17 +22,11 @@ AgentBoard gives agents a shared task queue with a REST API. Agents query for wo
 ## Architecture
 
 ```text
-┌─────────────┐     ┌──────────────────┐     ┌────────────┐
-│  AI Agents  │────▶│  AgentBoard API  │────▶│  Supabase  │
-│  (any LLM)  │◀────│  (Next.js)       │◀────│  (Postgres)│
-└─────────────┘     └──────────────────┘     └────────────┘
-                           │
-                    ┌──────┴──────┐
-                    │  Dashboard  │
-                    │  (React UI) │
-                    └─────────────┘
-
-Agents authenticate with API keys.
-Dashboard users authenticate with Supabase Auth.
-All task mutations create activity log entries.
+Agents ──▶ REST API ──▶ Supabase (Postgres)
+              │
+           Dashboard
 ```
+
+- **Agents** authenticate with API keys, call the REST API
+- **Dashboard** users authenticate with Supabase Auth
+- **All mutations** create activity log entries automatically
