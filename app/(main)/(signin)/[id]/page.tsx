@@ -130,7 +130,7 @@ export default async function SignIn({
   if (!card) return redirect("/signin");
 
   return (
-    <div className="w-full h-[calc(100vh-5rem)] flex flex-col items-center pt-6 sm:pt-20 px-4 bg-page relative overflow-hidden">
+    <div className="w-full min-h-dvh flex flex-col items-center justify-center px-4 bg-page relative overflow-hidden">
       <main className="relative z-10 flex flex-col items-center w-full max-w-[400px]">
         {card}
 

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTasks } from "@/hooks/use-tasks";
+import { createClient } from "@/utils/supabase/client";
+import Link from "next/link";
 import { QuickAdd } from "@/components/dashboard/quick-add";
 import { TaskFilters } from "@/components/dashboard/task-filters";
 import { TaskList } from "@/components/dashboard/task-list";
@@ -15,6 +17,12 @@ export default function DashboardPage() {
   const { tasks, loading, filters, setFilters, createTask, updateTask, deleteTask, spawnSubtask } = useTasks();
   const [view, setView] = useState<"list" | "board">("list");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user));
+  }, []);
 
   const uniqueAgents = useMemo(() => {
     const agents = new Set(tasks.map((t) => t.assigned_agent).filter(Boolean) as string[]);
@@ -36,7 +44,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh)] max-w-5xl mx-auto w-full">
+    <div className="flex flex-col h-dvh max-w-5xl mx-auto w-full">
       {/* Header */}
       <div className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-3 border-b">
         <h1 className="text-lg font-semibold pl-10 md:pl-0">Tasks</h1>
@@ -62,10 +70,18 @@ export default function DashboardPage() {
       <div className="flex-1 overflow-auto">
         {!loading && tasks.length === 0 && !filters.status && !filters.intent && !filters.agent ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <h2 className="text-lg font-semibold mb-2">Welcome to AgentBoard</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-lg font-semibold mb-2">Your task queue is empty</h2>
+            <p className="text-sm text-muted-foreground mb-4">
               Create your first task above, or connect an agent via API key.
             </p>
+            {isLoggedIn === false && (
+              <Link
+                href="/signin"
+                className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                Sign in to get started
+              </Link>
+            )}
           </div>
         ) : view === "list" ? (
           <TaskList tasks={tasks} loading={loading} onSelect={setSelectedTask} onToggleDone={handleToggleDone} />

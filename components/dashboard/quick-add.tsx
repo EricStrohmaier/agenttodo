@@ -3,6 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
+import Link from "next/link";
 
 interface QuickAddProps {
   onAdd: (title: string) => Promise<any>;
@@ -11,7 +14,13 @@ interface QuickAddProps {
 export function QuickAdd({ onAdd }: QuickAddProps) {
   const [value, setValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user));
+  }, []);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -27,6 +36,17 @@ export function QuickAdd({ onAdd }: QuickAddProps) {
   const handleSubmit = async () => {
     const title = value.trim();
     if (!title || submitting) return;
+
+    if (!isLoggedIn) {
+      toast("Sign in to create tasks", {
+        action: {
+          label: "Sign In",
+          onClick: () => (window.location.href = "/signin"),
+        },
+      });
+      return;
+    }
+
     setSubmitting(true);
     await onAdd(title);
     setValue("");

@@ -1,25 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { CheckSquare, Bot, Menu } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { CheckSquare, Bot, BookOpen, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "./theme-toggle";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const navItems = [
   { href: "/dashboard", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/agents", label: "Agents", icon: Bot },
+  { href: "/docs", label: "Docs", icon: BookOpen },
 ];
 
-function NavContent({ onNavigate }: { onNavigate?: () => void }) {
+function NavContent({ user, onNavigate }: { user: User | null; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
   const [openTaskCount, setOpenTaskCount] = useState<number | null>(null);
 
   useEffect(() => {
+    if (!user) return;
     async function fetchCount() {
       try {
         const res = await fetch("/api/tasks?limit=100");
@@ -30,10 +36,26 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
       } catch {}
     }
     fetchCount();
-  }, [pathname]);
+  }, [pathname, user]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/signin");
+  };
 
   return (
     <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="p-4 pb-2">
+        <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-base" onClick={onNavigate}>
+          <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground text-sm font-bold">A</span>
+          </div>
+          <span>AgentBoard</span>
+        </Link>
+      </div>
+
+      {/* Nav */}
       <nav className="flex-1 p-3 space-y-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -62,8 +84,33 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
 
       <Separator className="mx-4 w-auto" />
 
-      <div className="p-3">
+      {/* Bottom section */}
+      <div className="p-3 space-y-2">
         <ThemeToggle />
+        {user ? (
+          <div className="flex items-center gap-2 px-2 py-1">
+            <Avatar className="h-7 w-7">
+              <AvatarFallback className="text-xs bg-primary/10 text-primary font-medium">
+                {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium truncate">
+                {user.user_metadata?.full_name || user.email?.split("@")[0]}
+              </p>
+              {user.email && (
+                <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+              )}
+            </div>
+            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleSignOut}>
+              <LogOut className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        ) : (
+          <Button asChild className="w-full" size="sm">
+            <Link href="/signin" onClick={onNavigate}>Sign In</Link>
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -71,16 +118,22 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
 
 export function Sidebar() {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+  }, []);
 
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-52 border-r bg-sidebar flex-col shrink-0 h-[calc(100vh-3.5rem)] sticky top-14">
-        <NavContent />
+      <aside className="hidden md:flex w-52 border-r bg-sidebar flex-col shrink-0 h-screen sticky top-0">
+        <NavContent user={user} />
       </aside>
 
       {/* Mobile hamburger */}
-      <div className="md:hidden fixed top-16 left-3 z-50">
+      <div className="md:hidden fixed top-3 left-3 z-50">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="h-9 w-9">
@@ -88,7 +141,7 @@ export function Sidebar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-52 p-0 pt-4">
-            <NavContent onNavigate={() => setOpen(false)} />
+            <NavContent user={user} onNavigate={() => setOpen(false)} />
           </SheetContent>
         </Sheet>
       </div>
