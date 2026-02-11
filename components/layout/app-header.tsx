@@ -60,7 +60,7 @@ export function AppHeader() {
   );
 
   return (
-    <header className="h-14 border-b bg-background flex items-center px-4 shrink-0">
+    <header className="h-14 border-b bg-background flex items-center px-4 shrink-0 sticky top-0 z-50">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 font-semibold text-base mr-8">
         <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
