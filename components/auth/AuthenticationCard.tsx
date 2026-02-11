@@ -94,7 +94,7 @@ export default function AuthenticationCard({
               <div className="w-full border-t border-strong"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-sm text-foreground">or</span>
+              <span className="bg-background px-2 text-sm text-foreground">or</span>
             </div>
           </div>
         )}

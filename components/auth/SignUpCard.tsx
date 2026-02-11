@@ -82,7 +82,7 @@ export default function SignUpCard({
             <button
               type="submit"
               disabled={isGoogleLoading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-full border border-line-dark/20 bg-page-surface hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-full border border-line-dark/20 bg-page-surface hover:bg-accent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGoogleLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-content-secondary" />
