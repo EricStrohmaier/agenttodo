@@ -15,7 +15,7 @@ async function handler(req: NextRequest) {
 
   if (req.method === "GET") {
     const params = req.nextUrl.searchParams;
-    let query = db.from("tasks").select("*");
+    let query = db.from("tasks").select("*").eq("user_id", auth.data.userId);
 
     const status = params.get("status");
     if (status && VALID_STATUSES.includes(status as TaskStatus)) query = query.eq("status", status);
@@ -31,6 +31,13 @@ async function handler(req: NextRequest) {
 
     const parentId = params.get("parent_task_id");
     if (parentId) query = query.eq("parent_task_id", parentId);
+
+    const project = params.get("project");
+    if (project) query = query.eq("project", project);
+
+    const humanInput = params.get("human_input_needed");
+    if (humanInput === "true") query = query.eq("human_input_needed", true);
+    else if (humanInput === "false") query = query.eq("human_input_needed", false);
 
     const limit = Math.min(parseInt(params.get("limit") || "50"), 100);
     const offset = parseInt(params.get("offset") || "0");
@@ -62,6 +69,10 @@ async function handler(req: NextRequest) {
       assigned_agent: body.assigned_agent || null,
       created_by: body.created_by || auth.data.agent,
       requires_human_review: body.requires_human_review ?? true,
+      project: body.project || null,
+      project_context: body.project_context || null,
+      human_input_needed: body.human_input_needed ?? false,
+      user_id: auth.data.userId,
     };
 
     const { data: task, error: dbErr } = await db.from("tasks").insert(insert).select().single();
@@ -73,6 +84,7 @@ async function handler(req: NextRequest) {
       agent: insert.created_by,
       action: "created",
       details: { title: task.title, intent: task.intent },
+      user_id: auth.data.userId,
     });
 
     return success(task, 201);

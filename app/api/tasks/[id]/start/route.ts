@@ -12,7 +12,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   const db = getSupabaseClient(auth.data);
 
   // Check current status
-  const { data: task, error: fetchErr } = await db.from("tasks").select("status").eq("id", id).single();
+  const { data: task, error: fetchErr } = await db.from("tasks").select("status").eq("id", id).eq("user_id", auth.data.userId).single();
   if (fetchErr) return error("Task not found", 404);
   if (task.status === "in_progress") return error("Task is already in progress", 409);
 
@@ -24,6 +24,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
       claimed_at: new Date().toISOString(),
     })
     .eq("id", id)
+    .eq("user_id", auth.data.userId)
     .select()
     .single();
 

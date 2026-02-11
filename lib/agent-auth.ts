@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export interface AgentAuth {
   agent: string;
+  userId: string;
   permissions: { read: boolean; write: boolean };
   source: "api_key" | "session";
 }
@@ -21,7 +22,7 @@ export async function authenticateRequest(
 
     const { data: apiKey, error } = await db
       .from("api_keys")
-      .select("id, name, permissions")
+      .select("id, name, permissions, user_id")
       .eq("key_hash", keyHash)
       .single();
 
@@ -38,6 +39,7 @@ export async function authenticateRequest(
     return {
       data: {
         agent: apiKey.name,
+        userId: apiKey.user_id,
         permissions: apiKey.permissions as { read: boolean; write: boolean },
         source: "api_key",
       },
@@ -56,6 +58,7 @@ export async function authenticateRequest(
       return {
         data: {
           agent: user.email || user.id,
+          userId: user.id,
           permissions: { read: true, write: true },
           source: "session",
         },

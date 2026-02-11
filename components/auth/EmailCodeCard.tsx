@@ -33,10 +33,10 @@ export default function EmailCodeCard({
     <div className="w-full max-w-[400px] sm:min-h-[600px] flex flex-col">
       {/* Headline */}
       <div className="text-center mb-8">
-        <h1 className="font-display text-2xl sm:text-3xl text-content mb-3">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2">
           Email Verification
         </h1>
-        <p className="font-body text-content-body text-base sm:text-lg">
+        <p className="text-muted-foreground text-base">
           Enter your email to receive a verification code
         </p>
       </div>
@@ -45,7 +45,7 @@ export default function EmailCodeCard({
       <form noValidate={true} onSubmit={(e) => handleSubmit(e)} className="mb-6">
         <div className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm text-content mb-1.5">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
               Email
             </label>
             <input
@@ -58,14 +58,14 @@ export default function EmailCodeCard({
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
-              className="form-input"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting || disableButton || !email.trim()}
-            className="cta-button w-full flex items-center justify-center gap-2 px-6 py-3.5 font-sans font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -77,11 +77,11 @@ export default function EmailCodeCard({
       </form>
 
       {/* Back to sign in */}
-      <p className="font-body text-content-body text-sm text-center mt-6 sm:mt-auto">
+      <p className="text-muted-foreground text-sm text-center mt-6 sm:mt-auto">
         Want to try another way?{" "}
         <Link
           href={redirectTo ? `/signin?next=${redirectTo}` : "/signin"}
-          className="text-brand hover:underline font-medium"
+          className="text-foreground hover:underline font-medium"
         >
           Sign in
         </Link>

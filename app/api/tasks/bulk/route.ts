@@ -39,6 +39,10 @@ async function handler(req: NextRequest) {
       assigned_agent: t.assigned_agent || null,
       created_by: t.created_by || auth.data!.agent,
       requires_human_review: t.requires_human_review ?? true,
+      project: t.project || null,
+      project_context: t.project_context || null,
+      human_input_needed: t.human_input_needed ?? false,
+      user_id: auth.data!.userId,
     };
   });
 
@@ -53,6 +57,7 @@ async function handler(req: NextRequest) {
         agent: task.created_by,
         action: "created" as const,
         details: { title: task.title, intent: task.intent, bulk: true },
+        user_id: auth.data!.userId,
       }));
       await db.from("activity_log").insert(logs);
     }

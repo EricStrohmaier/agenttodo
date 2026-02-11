@@ -1,9 +1,24 @@
 export type TaskIntent = "research" | "build" | "write" | "think" | "admin" | "ops";
 export type TaskStatus = "todo" | "in_progress" | "blocked" | "review" | "done";
-export type LogAction = "created" | "claimed" | "updated" | "blocked" | "completed" | "added_subtask" | "request_review" | "unclaimed";
+export type LogAction = "created" | "claimed" | "updated" | "blocked" | "completed" | "added_subtask" | "request_review" | "unclaimed" | "message_sent";
+
+export interface TaskAttachment {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+  storage_path: string;
+}
+
+export interface TaskMessage {
+  from: string;
+  content: string;
+  created_at: string;
+}
 
 export interface Task {
   id: string;
+  user_id: string;
   title: string;
   description: string;
   intent: TaskIntent;
@@ -18,6 +33,11 @@ export interface Task {
   confidence: number | null;
   requires_human_review: boolean;
   blockers: string[];
+  attachments: TaskAttachment[];
+  project: string | null;
+  project_context: string | null;
+  human_input_needed: boolean;
+  messages: TaskMessage[];
   claimed_at: string | null;
   completed_at: string | null;
   created_at: string;
@@ -26,6 +46,7 @@ export interface Task {
 
 export interface ActivityLog {
   id: string;
+  user_id: string;
   task_id: string;
   agent: string;
   action: LogAction;
@@ -43,4 +64,7 @@ export interface CreateTaskInput {
   assigned_agent?: string;
   created_by?: string;
   requires_human_review?: boolean;
+  project?: string;
+  project_context?: string;
+  human_input_needed?: boolean;
 }

@@ -36,10 +36,10 @@ export default function UpdatePasswordCard({
     <div className="w-full max-w-[400px] sm:min-h-[600px] flex flex-col">
       {/* Headline */}
       <div className="text-center mb-8">
-        <h1 className="font-display text-2xl sm:text-3xl text-content mb-3">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2">
           {isSetPassword ? "Set Password" : "Update Password"}
         </h1>
-        <p className="font-body text-content-body text-base sm:text-lg">
+        <p className="text-muted-foreground text-base">
           {isSetPassword
             ? "Please set your new password to continue"
             : "Please enter your new password"}
@@ -50,7 +50,7 @@ export default function UpdatePasswordCard({
       <form noValidate={true} onSubmit={(e) => handleSubmit(e)} className="mb-6">
         <div className="space-y-4">
           <div>
-            <label htmlFor="password" className="block text-sm text-content mb-1.5">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1.5">
               {isSetPassword ? "New Password" : "Password"}
             </label>
             <div className="relative">
@@ -60,11 +60,11 @@ export default function UpdatePasswordCard({
                 type={showPassword ? "text" : "password"}
                 name="password"
                 autoComplete="new-password"
-                className="form-input pr-12"
+                className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors pr-12"
               />
               <button
                 type="button"
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-content-muted hover:text-content-body"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -73,7 +73,7 @@ export default function UpdatePasswordCard({
           </div>
 
           <div>
-            <label htmlFor="passwordConfirm" className="block text-sm text-content mb-1.5">
+            <label htmlFor="passwordConfirm" className="block text-sm font-medium text-foreground mb-1.5">
               {isSetPassword ? "Confirm New Password" : "Confirm Password"}
             </label>
             <div className="relative">
@@ -83,11 +83,11 @@ export default function UpdatePasswordCard({
                 type={showPassword ? "text" : "password"}
                 name="passwordConfirm"
                 autoComplete="new-password"
-                className="form-input pr-12"
+                className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors pr-12"
               />
               <button
                 type="button"
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-content-muted hover:text-content-body"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -98,7 +98,7 @@ export default function UpdatePasswordCard({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="cta-button w-full flex items-center justify-center gap-2 px-6 py-3.5 font-sans font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
           >
             {isSubmitting ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -110,11 +110,11 @@ export default function UpdatePasswordCard({
       </form>
 
       {/* Back to sign in */}
-      <p className="font-body text-content-body text-sm text-center mt-6 sm:mt-auto">
+      <p className="text-muted-foreground text-sm text-center mt-6 sm:mt-auto">
         Changed your mind?{" "}
         <Link
           href={redirectToURL ? `/signin?next=${redirectToURL}` : "/signin"}
-          className="text-brand hover:underline font-medium"
+          className="text-foreground hover:underline font-medium"
         >
           Sign in
         </Link>

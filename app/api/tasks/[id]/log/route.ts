@@ -17,6 +17,10 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
 
   if (!body.action || !VALID_ACTIONS.includes(body.action)) return error("Valid action is required");
 
+  // Verify task belongs to user
+  const { error: taskErr } = await db.from("tasks").select("id").eq("id", id).eq("user_id", auth.data.userId).single();
+  if (taskErr) return error("Task not found", 404);
+
   const { data: log, error: dbErr } = await db
     .from("activity_log")
     .insert({
@@ -24,6 +28,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
       agent: auth.data.agent,
       action: body.action,
       details: body.details || {},
+      user_id: auth.data.userId,
     })
     .select()
     .single();

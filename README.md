@@ -31,7 +31,7 @@ pnpm install
 
 2. Set up Supabase:
    - Create a project at [supabase.com](https://supabase.com)
-   - Run migrations: `supabase db push` or execute the SQL files in `supabase/migrations/`
+   - Run migration: `supabase db push` or execute `supabase/migrations/001_full_schema.sql`
    - Copy your project URL and keys
 
 3. Configure environment:

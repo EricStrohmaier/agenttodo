@@ -12,7 +12,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   const db = getSupabaseClient(auth.data);
   const body = await req.json().catch(() => ({}));
 
-  const { data: task, error: fetchErr } = await db.from("tasks").select("requires_human_review").eq("id", id).single();
+  const { data: task, error: fetchErr } = await db.from("tasks").select("requires_human_review").eq("id", id).eq("user_id", auth.data.userId).single();
   if (fetchErr) return error("Task not found", 404);
 
   const update: Record<string, any> = {
@@ -24,7 +24,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   if (body.confidence !== undefined) update.confidence = body.confidence;
   if (body.artifacts !== undefined) update.artifacts = body.artifacts;
 
-  const { data: updated, error: dbErr } = await db.from("tasks").update(update).eq("id", id).select().single();
+  const { data: updated, error: dbErr } = await db.from("tasks").update(update).eq("id", id).eq("user_id", auth.data.userId).select().single();
   if (dbErr) return error(dbErr.message, 500);
   return success(updated);
 }

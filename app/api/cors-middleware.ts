@@ -5,8 +5,8 @@ import type { NextRequest } from 'next/server';
  * Middleware function to add CORS headers to API responses
  * This can be wrapped around any API handler
  */
-export function withCors(handler: (req: NextRequest) => Promise<Response>) {
-  return async function (req: NextRequest) {
+export function withCors(handler: (req: NextRequest, context?: any) => Promise<Response>) {
+  return async function (req: NextRequest, context?: any) {
     // Get the origin from the request headers
     const origin = req.headers.get('origin') || '*';
 
@@ -25,7 +25,7 @@ export function withCors(handler: (req: NextRequest) => Promise<Response>) {
     }
 
     // Call the original handler
-    const response = await handler(req);
+    const response = await handler(req, context);
 
     // Create a NextResponse from the original response
     const nextResponse = new NextResponse(response.body, {

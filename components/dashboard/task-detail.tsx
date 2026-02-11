@@ -14,8 +14,9 @@ import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ALL_STATUSES, ALL_INTENTS, STATUS_LABELS, INTENT_LABELS, INTENT_COLORS, PRIORITY_COLORS } from "@/lib/constants";
 import { ActivityLog } from "./activity-log";
-import { Circle, Trash2, GitBranch } from "lucide-react";
-import type { Task, TaskStatus, TaskIntent } from "@/types/tasks";
+import { HUMAN_INPUT_BADGE_COLOR } from "@/lib/constants";
+import { Circle, Trash2, GitBranch, Upload, X, Paperclip, Image as ImageIcon, FileText, Send } from "lucide-react";
+import type { Task, TaskStatus, TaskIntent, TaskAttachment, TaskMessage } from "@/types/tasks";
 
 interface TaskDetailProps {
   task: Task | null;
@@ -24,9 +25,11 @@ interface TaskDetailProps {
   onUpdate: (id: string, updates: Partial<Task>) => Promise<any>;
   onDelete: (id: string) => Promise<boolean>;
   onSpawnSubtask: (parentId: string, title: string) => Promise<any>;
+  onUploadAttachment?: (taskId: string, file: File) => Promise<any>;
+  onSendMessage?: (taskId: string, content: string) => Promise<any>;
 }
 
-export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSubtask }: TaskDetailProps) {
+export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSubtask, onUploadAttachment, onSendMessage }: TaskDetailProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<TaskStatus>("todo");
@@ -36,6 +39,10 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
   const [context, setContext] = useState("");
   const [humanReview, setHumanReview] = useState(true);
   const [blockers, setBlockers] = useState("");
+  const [project, setProject] = useState("");
+  const [projectContext, setProjectContext] = useState("");
+  const [humanInputNeeded, setHumanInputNeeded] = useState(false);
+  const [messageInput, setMessageInput] = useState("");
   const [subtaskTitle, setSubtaskTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -51,6 +58,10 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
       setContext(task.context ? JSON.stringify(task.context, null, 2) : "{}");
       setHumanReview(task.requires_human_review);
       setBlockers(task.blockers?.join("\n") || "");
+      setProject(task.project || "");
+      setProjectContext(task.project_context || "");
+      setHumanInputNeeded(task.human_input_needed ?? false);
+      setMessageInput("");
     }
   }, [task]);
 
@@ -185,6 +196,30 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
             />
           </div>
 
+          {/* Project */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Project</Label>
+              <Input
+                value={project}
+                onChange={(e) => setProject(e.target.value)}
+                onBlur={() => save({ project: project || null })}
+                placeholder="Project name..."
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Project Context</Label>
+              <Input
+                value={projectContext}
+                onChange={(e) => setProjectContext(e.target.value)}
+                onBlur={() => save({ project_context: projectContext || null })}
+                placeholder="Context..."
+                className="h-8 text-sm"
+              />
+            </div>
+          </div>
+
           {/* Description */}
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Description</Label>
@@ -243,6 +278,145 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
               className="text-sm resize-none"
               placeholder="Enter blockers..."
             />
+          </div>
+
+          {/* Attachments */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Attachments</Label>
+            {task.attachments?.length > 0 && (
+              <div className="space-y-2">
+                {/* Image thumbnails */}
+                {task.attachments.filter((a: TaskAttachment) => a.type.startsWith("image/")).length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {task.attachments.filter((a: TaskAttachment) => a.type.startsWith("image/")).map((a: TaskAttachment, i: number) => (
+                      <div key={i} className="relative group/att">
+                        <a href={a.url} target="_blank" rel="noopener noreferrer">
+                          <img src={a.url} alt={a.name} className="w-full h-20 object-cover rounded-md border" />
+                        </a>
+                        <button
+                          onClick={() => {
+                            const updated = task.attachments.filter((_: TaskAttachment, idx: number) => idx !== task.attachments.indexOf(a));
+                            save({ attachments: updated });
+                          }}
+                          className="absolute top-1 right-1 bg-background/80 rounded-full p-0.5 opacity-0 group-hover/att:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Non-image files */}
+                {task.attachments.filter((a: TaskAttachment) => !a.type.startsWith("image/")).map((a: TaskAttachment, i: number) => (
+                  <div key={i} className="flex items-center gap-2 text-xs group/att">
+                    <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    <a href={a.url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate hover:underline">
+                      {a.name}
+                    </a>
+                    <span className="text-muted-foreground shrink-0">{(a.size / 1024).toFixed(0)}KB</span>
+                    <button
+                      onClick={() => {
+                        const idx = task.attachments.findIndex((x: TaskAttachment) => x.storage_path === a.storage_path);
+                        const updated = task.attachments.filter((_: TaskAttachment, j: number) => j !== idx);
+                        save({ attachments: updated });
+                      }}
+                      className="opacity-0 group-hover/att:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {onUploadAttachment && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                onClick={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) await onUploadAttachment(task.id, file);
+                  };
+                  input.click();
+                }}
+              >
+                <Upload className="w-3 h-3 mr-1" /> Upload File
+              </Button>
+            )}
+          </div>
+
+          {/* Human Input Needed */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs text-muted-foreground">Human Input Needed</Label>
+              <Switch
+                checked={humanInputNeeded}
+                onCheckedChange={(v) => {
+                  setHumanInputNeeded(v);
+                  save({ human_input_needed: v });
+                }}
+              />
+            </div>
+            {humanInputNeeded && (
+              <div className="rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-2 text-xs text-amber-700 dark:text-amber-400">
+                This task is waiting for human input.
+              </div>
+            )}
+          </div>
+
+          {/* Messages / Feedback Thread */}
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Messages</Label>
+            {task.messages?.length > 0 && (
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {task.messages.map((msg: TaskMessage, i: number) => (
+                  <div
+                    key={i}
+                    className={`rounded-lg px-3 py-2 text-xs max-w-[85%] ${
+                      msg.from === "human"
+                        ? "ml-auto bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    }`}
+                  >
+                    <div className="font-medium mb-0.5">{msg.from}</div>
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {onSendMessage && (
+              <div className="flex gap-2">
+                <Input
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey && messageInput.trim()) {
+                      e.preventDefault();
+                      onSendMessage(task.id, messageInput.trim());
+                      setMessageInput("");
+                    }
+                  }}
+                  placeholder="Type a message..."
+                  className="h-8 text-sm flex-1"
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8"
+                  onClick={() => {
+                    if (messageInput.trim() && onSendMessage) {
+                      onSendMessage(task.id, messageInput.trim());
+                      setMessageInput("");
+                    }
+                  }}
+                >
+                  <Send className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Result */}

@@ -20,7 +20,7 @@ export default function SignUpCard({
   redirectMethod,
   redirectToURL,
 }: SignUpCardProps) {
-  
+
   const router = useRouter();
   const routerMethod = redirectMethod === "client" ? router : null;
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,11 +65,11 @@ export default function SignUpCard({
     <div className="w-full max-w-[400px] sm:min-h-[600px] flex flex-col">
       {/* Headline */}
       <div className="text-center mb-8">
-        <h1 className="font-display text-2xl sm:text-3xl text-content mb-3">
-          "Create Account"
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2">
+          Create Account
         </h1>
-        <p className="font-body text-content-body text-base sm:text-lg">
-          "Get started with AgentTodo"
+        <p className="text-muted-foreground text-base">
+          Get started with AgentTodo
         </p>
       </div>
 
@@ -82,10 +82,10 @@ export default function SignUpCard({
             <button
               type="submit"
               disabled={isGoogleLoading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-full border border-line-dark/20 bg-page-surface hover:bg-accent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGoogleLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin text-content-secondary" />
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
               ) : (
                 <>
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -106,8 +106,8 @@ export default function SignUpCard({
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  <span className="font-sans font-medium text-content">
-                    "Sign up with Google"
+                  <span className="font-medium text-foreground">
+                    Sign up with Google
                   </span>
                 </>
               )}
@@ -117,11 +117,11 @@ export default function SignUpCard({
           {/* Divider */}
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-line-dark/10"></div>
+              <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-page px-4 font-body text-sm text-content-muted">
-                "or"
+              <span className="bg-background px-4 text-sm text-muted-foreground">
+                or
               </span>
             </div>
           </div>
@@ -133,8 +133,8 @@ export default function SignUpCard({
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="first_name" className="block text-sm text-content mb-1.5">
-                "First Name"
+              <label htmlFor="first_name" className="block text-sm font-medium text-foreground mb-1.5">
+                First Name
               </label>
               <input
                 id="first_name"
@@ -143,12 +143,12 @@ export default function SignUpCard({
                 name="first_name"
                 autoCapitalize="words"
                 autoComplete="given-name"
-                className="form-input"
+                className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors"
               />
             </div>
             <div>
-              <label htmlFor="last_name" className="block text-sm text-content mb-1.5">
-                "Last Name"
+              <label htmlFor="last_name" className="block text-sm font-medium text-foreground mb-1.5">
+                Last Name
               </label>
               <input
                 id="last_name"
@@ -157,14 +157,14 @@ export default function SignUpCard({
                 name="last_name"
                 autoCapitalize="words"
                 autoComplete="family-name"
-                className="form-input"
+                className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm text-content mb-1.5">
-              "Email"
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
+              Email
             </label>
             <input
               id="email"
@@ -176,13 +176,13 @@ export default function SignUpCard({
               autoCorrect="off"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="form-input"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm text-content mb-1.5">
-              "Password"
+            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1.5">
+              Password
             </label>
             <div className="relative">
               <input
@@ -193,11 +193,11 @@ export default function SignUpCard({
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="form-input pr-12"
+                className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors pr-12"
               />
               <button
                 type="button"
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-content-muted hover:text-content-body"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -208,25 +208,25 @@ export default function SignUpCard({
           <button
             type="submit"
             disabled={isSubmitting || !email.trim() || !password.trim()}
-            className="cta-button w-full flex items-center justify-center gap-2 px-6 py-3.5 font-sans font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
           >
             {isSubmitting ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <span>"Create Account"</span>
+              <span>Create Account</span>
             )}
           </button>
         </div>
       </form>
 
       {/* Already have account */}
-      <p className="font-body text-content-body text-sm text-center mt-6 sm:mt-auto">
-        "Already have an account?"{" "}
+      <p className="text-muted-foreground text-sm text-center mt-6 sm:mt-auto">
+        Already have an account?{" "}
         <Link
           href={redirectToURL ? `/signin?next=${redirectToURL}` : "/signin"}
-          className="text-brand hover:underline font-medium"
+          className="text-foreground hover:underline font-medium"
         >
-          "Sign In"
+          Sign In
         </Link>
       </p>
     </div>

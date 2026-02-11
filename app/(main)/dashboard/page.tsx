@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useTasks } from "@/hooks/use-tasks";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { QuickAdd } from "@/components/dashboard/quick-add";
 import { TaskFilters } from "@/components/dashboard/task-filters";
 import { TaskList } from "@/components/dashboard/task-list";
 import { TaskBoard } from "@/components/dashboard/task-board";
-import { TaskDetail } from "@/components/dashboard/task-detail";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { List, Columns3 } from "lucide-react";
 import type { Task } from "@/types/tasks";
@@ -61,12 +61,19 @@ function WelcomeBanner({ onDismiss }: { onDismiss: () => void }) {
 }
 
 export default function DashboardPage() {
-  const { tasks, loading, filters, setFilters, createTask, updateTask, deleteTask, spawnSubtask } = useTasks();
-  const [view, setView] = useState<"list" | "board">("list");
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const { tasks, loading, filters, setFilters, createTask, updateTask, deleteTask, spawnSubtask, uploadAttachment, sendMessage } = useTasks();
+  const [view, setView] = useState<"list" | "board">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("dashboard-view");
+      if (saved === "list" || saved === "board") return saved;
+    }
+    return "list";
+  });
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showBanner, setShowBanner] = useState(false);
+  const [shiftHeld, setShiftHeld] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
@@ -79,9 +86,30 @@ export default function DashboardPage() {
     });
   }, []);
 
+  // Track Shift key for quick-delete mode
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => { if (e.key === "Shift") setShiftHeld(true); };
+    const up = (e: KeyboardEvent) => { if (e.key === "Shift") setShiftHeld(false); };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    // Also clear on blur (e.g. user switches tabs while holding shift)
+    const blur = () => setShiftHeld(false);
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
+    };
+  }, []);
+
   const uniqueAgents = useMemo(() => {
     const agents = new Set(tasks.map((t) => t.assigned_agent).filter(Boolean) as string[]);
     return Array.from(agents);
+  }, [tasks]);
+
+  const uniqueProjects = useMemo(() => {
+    const projects = new Set(tasks.map((t) => t.project).filter(Boolean) as string[]);
+    return Array.from(projects);
   }, [tasks]);
 
   const handleToggleDone = (task: Task) => {
@@ -89,12 +117,8 @@ export default function DashboardPage() {
     updateTask(task.id, { status: newStatus });
   };
 
-  const handleUpdate = async (id: string, updates: Partial<Task>) => {
-    const result = await updateTask(id, updates);
-    if (result && selectedTask?.id === id) {
-      setSelectedTask({ ...selectedTask, ...updates, ...result });
-    }
-    return result;
+  const handleSelect = (task: Task) => {
+    router.push(`/dashboard/tasks/${task.id}`);
   };
 
   const dismissBanner = () => {
@@ -120,7 +144,11 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-3 border-b">
         <h1 className="text-lg font-semibold pl-10 md:pl-0">Tasks</h1>
-        <Tabs value={view} onValueChange={(v) => setView(v as "list" | "board")}>
+        <Tabs value={view} onValueChange={(v) => {
+          const val = v as "list" | "board";
+          setView(val);
+          localStorage.setItem("dashboard-view", val);
+        }}>
           <TabsList className="h-8">
             <TabsTrigger value="list" className="h-6 px-2 text-xs gap-1">
               <List className="w-3.5 h-3.5" /> List
@@ -136,10 +164,10 @@ export default function DashboardPage() {
       <QuickAdd onAdd={createTask} />
 
       {/* Filters */}
-      <TaskFilters filters={filters} onFiltersChange={setFilters} agents={uniqueAgents} />
+      <TaskFilters filters={filters} onFiltersChange={setFilters} agents={uniqueAgents} projects={uniqueProjects} />
 
       {/* Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto scrollbar-thin">
         {!loading && tasks.length === 0 && !filters.status && !filters.intent && !filters.agent ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <h2 className="text-lg font-semibold mb-2">Your task queue is empty</h2>
@@ -148,22 +176,13 @@ export default function DashboardPage() {
             </p>
           </div>
         ) : view === "list" ? (
-          <TaskList tasks={tasks} loading={loading} onSelect={setSelectedTask} onToggleDone={handleToggleDone} />
+          <TaskList tasks={tasks} loading={loading} onSelect={handleSelect} onToggleDone={handleToggleDone} onUpdate={(id, updates) => updateTask(id, updates)} onDelete={deleteTask} shiftHeld={shiftHeld} />
         ) : (
-          <TaskBoard tasks={tasks} loading={loading} onSelect={setSelectedTask} />
+          <TaskBoard tasks={tasks} loading={loading} onSelect={handleSelect} onStatusChange={(id, status) => updateTask(id, { status })} onUpdate={(id, updates) => updateTask(id, updates)} onDelete={deleteTask} shiftHeld={shiftHeld} />
         )}
       </div>
 
       </div>
-      {/* Detail panel */}
-      <TaskDetail
-        task={selectedTask}
-        open={!!selectedTask}
-        onClose={() => setSelectedTask(null)}
-        onUpdate={handleUpdate}
-        onDelete={deleteTask}
-        onSpawnSubtask={spawnSubtask}
-      />
     </div>
   );
 }

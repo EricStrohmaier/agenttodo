@@ -17,6 +17,7 @@ async function handler(req: NextRequest) {
     const { data, error: dbErr } = await db
       .from("api_keys")
       .select("id, name, last_used_at, created_at")
+      .eq("user_id", auth.data.userId)
       .order("created_at", { ascending: false });
 
     if (dbErr) return error(dbErr.message, 500);
@@ -36,6 +37,7 @@ async function handler(req: NextRequest) {
         name: body.name.trim(),
         key_hash: keyHash,
         permissions: body.permissions || { read: true, write: true },
+        user_id: auth.data.userId,
       })
       .select("id, name, created_at")
       .single();

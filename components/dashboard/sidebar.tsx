@@ -50,20 +50,25 @@ function NavContent({ user, onNavigate, collapsed = false, onToggle }: { user: U
       <div className="flex flex-col h-full">
         {/* Logo + Toggle */}
         <div className={`p-4 pb-2 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
-          <Link href="/dashboard" className={`flex items-center gap-2 font-semibold text-base ${collapsed ? "justify-center" : ""}`} onClick={onNavigate}>
-            <img src="/favicon-light.svg" alt="AgentTodo" className="w-7 h-7 shrink-0 dark:hidden" />
-            <img src="/favicon-dark.svg" alt="AgentTodo" className="w-7 h-7 shrink-0 hidden dark:block" />
-            {!collapsed && <span>AgentTodo</span>}
-          </Link>
-          {!collapsed && onToggle && (
-            <button onClick={onToggle} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors">
-              <PanelLeftClose className="w-4 h-4" />
+          {collapsed && onToggle ? (
+            <button onClick={onToggle} className="flex items-center justify-center w-7 h-7 relative group/logo">
+              <img src="/favicon-light.svg" alt="AgentTodo" className="w-7 h-7 shrink-0 dark:hidden group-hover/logo:opacity-0 transition-opacity" />
+              <img src="/favicon-dark.svg" alt="AgentTodo" className="w-7 h-7 shrink-0 hidden dark:block group-hover/logo:opacity-0 transition-opacity" />
+              <PanelLeftOpen className="w-5 h-5 text-muted-foreground absolute inset-0 m-auto opacity-0 group-hover/logo:opacity-100 transition-opacity" />
             </button>
-          )}
-          {collapsed && onToggle && (
-            <button onClick={onToggle} className="absolute top-12 left-1/2 -translate-x-1/2 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors">
-              <PanelLeftOpen className="w-4 h-4" />
-            </button>
+          ) : (
+            <>
+              <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-base" onClick={onNavigate}>
+                <img src="/favicon-light.svg" alt="AgentTodo" className="w-7 h-7 shrink-0 dark:hidden" />
+                <img src="/favicon-dark.svg" alt="AgentTodo" className="w-7 h-7 shrink-0 hidden dark:block" />
+                <span>AgentTodo</span>
+              </Link>
+              {onToggle && (
+                <button onClick={onToggle} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors">
+                  <PanelLeftClose className="w-4 h-4" />
+                </button>
+              )}
+            </>
           )}
         </div>
 
@@ -170,6 +175,15 @@ function NavContent({ user, onNavigate, collapsed = false, onToggle }: { user: U
             <Button asChild className="w-full" size="sm">
               <Link href="/signin" onClick={onNavigate}>Sign In</Link>
             </Button>
+          )}
+
+          {/* Privacy & Terms */}
+          {!collapsed && (
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground/60 pb-1">
+              <Link href="/privacy" className="hover:text-muted-foreground transition-colors">Privacy</Link>
+              <span>·</span>
+              <Link href="/terms" className="hover:text-muted-foreground transition-colors">Terms</Link>
+            </div>
           )}
         </div>
       </div>

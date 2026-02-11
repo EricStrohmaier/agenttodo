@@ -1,6 +1,20 @@
 "use client";
 
-import { TaskCard } from "./task-card";
+import { useState } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCorners,
+  type DragStartEvent,
+  type DragEndEvent,
+  type DragOverEvent,
+} from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { TaskCard, SortableTaskCard } from "./task-card";
+import { BoardColumn } from "./board-column";
 import { ALL_STATUSES, STATUS_LABELS, STATUS_DOT_COLORS } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Task, TaskStatus } from "@/types/tasks";
@@ -9,12 +23,22 @@ interface TaskBoardProps {
   tasks: Task[];
   loading: boolean;
   onSelect: (task: Task) => void;
+  onStatusChange?: (id: string, status: TaskStatus) => void;
+  onUpdate?: (id: string, updates: Partial<Task>) => void;
+  onDelete?: (id: string) => void;
+  shiftHeld?: boolean;
 }
 
-export function TaskBoard({ tasks, loading, onSelect }: TaskBoardProps) {
+export function TaskBoard({ tasks, loading, onSelect, onStatusChange, onUpdate, onDelete, shiftHeld }: TaskBoardProps) {
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 px-6 md:px-12 lg:px-20 py-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 px-4 md:px-6 py-4">
         {ALL_STATUSES.map((s) => (
           <div key={s} className="space-y-3">
             <Skeleton className="h-6 w-24" />
@@ -33,29 +57,65 @@ export function TaskBoard({ tasks, loading, onSelect }: TaskBoardProps) {
     tasks: tasks.filter((t) => t.status === status),
   }));
 
+  function handleDragStart(event: DragStartEvent) {
+    const task = tasks.find((t) => t.id === event.active.id);
+    if (task) setActiveTask(task);
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveTask(null);
+    const { active, over } = event;
+    if (!over || !onStatusChange) return;
+
+    const taskId = active.id as string;
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    // Determine target status: dropped on a column or on another task
+    let targetStatus: TaskStatus | undefined;
+
+    if (ALL_STATUSES.includes(over.id as TaskStatus)) {
+      targetStatus = over.id as TaskStatus;
+    } else {
+      const overTask = tasks.find((t) => t.id === over.id);
+      if (overTask) targetStatus = overTask.status;
+    }
+
+    if (targetStatus && targetStatus !== task.status) {
+      onStatusChange(taskId, targetStatus);
+    }
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 px-6 md:px-12 lg:px-20 py-4 overflow-x-auto">
-      {columns.map((col) => (
-        <div key={col.status} className="min-w-[200px]">
-          <div className="flex items-center gap-2 mb-3 px-1">
-            <div className={`w-2 h-2 rounded-full ${col.dotColor}`} />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {col.label}
-            </span>
-            <span className="text-xs text-muted-foreground/60">{col.tasks.length}</span>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 px-4 md:px-6 py-4 overflow-x-auto">
+        {columns.map((col) => (
+          <BoardColumn
+            key={col.status}
+            status={col.status}
+            label={col.label}
+            dotColor={col.dotColor}
+            tasks={col.tasks}
+            onSelect={onSelect}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            shiftHeld={shiftHeld}
+          />
+        ))}
+      </div>
+
+      <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
+        {activeTask ? (
+          <div className="rotate-[2deg] scale-105">
+            <TaskCard task={activeTask} onSelect={() => {}} />
           </div>
-          <div className="space-y-2 max-h-[calc(100dvh-200px)] overflow-y-auto">
-            {col.tasks.map((task) => (
-              <TaskCard key={task.id} task={task} onSelect={onSelect} />
-            ))}
-            {col.tasks.length === 0 && (
-              <div className="border border-dashed rounded-lg p-4 text-center text-xs text-muted-foreground/50">
-                No tasks
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 }

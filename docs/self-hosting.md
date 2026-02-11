@@ -20,16 +20,13 @@ pnpm install
 
 1. Create a new project at [supabase.com](https://supabase.com)
 2. Go to **SQL Editor** in your Supabase dashboard
-3. Run each migration file in order:
+3. Run the migration file:
 
 ```
-supabase/migrations/001_initial.sql
-supabase/migrations/002_tasks.sql
-supabase/migrations/003_activity.sql
-supabase/migrations/004_api_keys.sql
+supabase/migrations/001_full_schema.sql
 ```
 
-Paste each file's contents into the SQL Editor and click **Run**.
+Paste the file's contents into the SQL Editor and click **Run**.
 
 **Alternatively**, if you have the [Supabase CLI](https://supabase.com/docs/guides/cli):
 
@@ -122,7 +119,7 @@ git pull origin main
 pnpm install
 ```
 
-Check if there are new migration files in `supabase/migrations/` and run them in your Supabase SQL Editor. Then redeploy.
+Check if the migration file in `supabase/migrations/` has been updated and re-run it in your Supabase SQL Editor. Then redeploy.
 
 ---
 

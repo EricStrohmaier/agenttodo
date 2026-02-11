@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, CornerDownLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -67,9 +68,21 @@ export function QuickAdd({ onAdd }: QuickAddProps) {
           className="border-0 shadow-none focus-visible:ring-0 px-0 h-8 text-sm"
         />
       </div>
-      <kbd className="hidden sm:inline-flex items-center text-[10px] text-muted-foreground/50 border rounded px-1.5 py-0.5 font-mono">
-        ⌘K
-      </kbd>
+      {value.trim() ? (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="h-7 px-2 text-xs text-muted-foreground shrink-0"
+        >
+          <CornerDownLeft className="w-3.5 h-3.5" />
+        </Button>
+      ) : (
+        <kbd className="hidden sm:inline-flex items-center text-[10px] text-muted-foreground/50 border rounded px-1.5 py-0.5 font-mono">
+          ⌘K
+        </kbd>
+      )}
     </div>
   );
 }

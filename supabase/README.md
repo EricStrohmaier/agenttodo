@@ -2,101 +2,82 @@
 
 ## Quick Start
 
-### Applying Migrations (Remote)
-Go to Supabase Dashboard > SQL Editor > paste migration > Run
+### Applying Migration
+Go to Supabase Dashboard > SQL Editor > paste `001_full_schema.sql` > Run
 
-Run migrations in order: 001 → 002 → ... → 010
+Or with Supabase CLI:
+```bash
+supabase link --project-ref your-project-ref
+supabase db push
+```
 
 ## Schema Overview
 
-| Migration | Tables/Features |
-|-----------|-----------------|
-| 001 | `chat_sessions`, `chat_messages` + helper functions |
-| 002 | `users` (profile, credits, Stripe ID) |
-| 003 | `child_profiles` |
-| 004 | `books`, `book_spreads` (with format_id, layout JSONB) |
-| 005 | `credit_transactions` + credit functions |
-| 006 | `style_previews`, `story_concepts` |
-| 007 | `generation_events`, `waitlist`, `feedback` |
-| 008 | Storage buckets (photos, generated, exports) |
-| 009 | Views (`v_user_dashboard`, `v_book_library`) + utilities |
-| 010 | Admin policies + `admin_grant_credits()` |
+Everything is in a single migration: `001_full_schema.sql`
+
+| Table | Purpose |
+|-------|---------|
+| `tasks` | Core task queue — shared between humans and agents |
+| `activity_log` | Audit trail of every action |
+| `api_keys` | Agent authentication with capabilities |
+| `user_plans` | Free/Pro plan tracking with Stripe |
 
 ## Key Tables
 
 ```
-users
-├── story_credits (INTEGER) ← single source of truth for credits
+tasks
+├── intent (enum: research, build, write, think, admin, ops)
+├── status (enum: todo, in_progress, blocked, review, done)
+├── priority (1-5, higher = more urgent)
+├── context (JSONB) → links, files, constraints
+├── metadata (JSONB) → attribution/watermark info
+├── recurrence (JSONB) → cron/interval for recurring tasks
+├── confidence (0-1) → agent self-evaluation
+└── requires_human_review (bool, default true)
+
+api_keys
+├── key_hash (unique)
+├── permissions (JSONB: read/write)
+├── description → what the agent does
+└── capabilities (text[]) → which intents it handles
+
+user_plans
+├── plan (enum: free, pro)
 ├── stripe_customer_id
-└── user_type ('customer' | 'admin')
-
-books
-├── format_id (TEXT) → references lib/book-formats.ts
-├── child_data (JSONB) → snapshot of character at generation
-└── status ('draft' | 'generating' | 'complete' | 'error' | 'archived')
-
-book_spreads
-├── layout_template_id (TEXT) → references lib/layout-templates.ts
-├── layout (JSONB) → flexible positioned elements
-└── status ('pending' | 'generating' | 'complete' | 'error')
+└── stripe_subscription_id
 ```
 
-## Hardcoded Config (in code, not DB)
+## Plan Limits (enforced in application code)
 
-- **Book formats**: `lib/book-formats.ts` (square_8x8, a4_portrait, etc.)
-- **Layout templates**: `lib/layout-templates.ts` (text_left_image_right, full_bleed, etc.)
-- **Stripe products**: Define in code, not DB
+- **Free**: 50 active tasks, 2 API keys
+- **Pro** ($4.99/mo): Unlimited tasks, unlimited API keys
 
-## Key Functions
+## Enums
 
-```sql
--- Credits
-SELECT add_credits(user_id, 5, 'purchase', 'Bought 5 credits', 'pi_xxx');
-SELECT use_credits(user_id, 1, book_id, 'Generated book');
-SELECT has_sufficient_credits(user_id, 1);
+- `task_intent`: research, build, write, think, admin, ops
+- `task_status`: todo, in_progress, blocked, review, done
+- `log_action`: created, claimed, updated, blocked, completed, added_subtask, request_review, unclaimed
+- `plan_type`: free, pro
 
--- Books
-SELECT can_create_book(user_id);
-SELECT soft_delete_book(book_id, user_id);
+## Auto-Triggers
 
--- Logging (for debugging)
-SELECT log_generation_event(
-    user_id, 'page_spread', true,
-    '{"prompt": "..."}'::jsonb,  -- request
-    '{"image_url": "..."}'::jsonb,  -- response
-    1500,  -- duration_ms
-    book_id, spread_id, 0, 'watercolor', 'imagen-3'
-);
+- `tasks_updated_at` — auto-updates `updated_at` on task changes
+- `tasks_status_change` — auto-logs status transitions to `activity_log`
+- `user_plans_updated_at` — auto-updates `updated_at` on plan changes
 
--- Admin (requires user_type = 'admin')
-SELECT admin_grant_credits(target_user_id, 10, 'Beta tester reward');
-```
+## RLS Policies
 
-## Storage Buckets
+- Authenticated users: full CRUD on tasks/api_keys, read+insert on activity_log, read own plan
+- Service role: full access to everything
 
-| Bucket | Public | Limit | Use |
-|--------|--------|-------|-----|
-| `photos` | No | 10MB/file | User uploaded child reference photos (up to 5) |
-| `generated` | Yes | 10MB/file | AI-generated images |
-| `exports` | No | 100MB/file | PDF exports |
+## Realtime
 
-Path pattern: `{user_id}/{book_id}/{filename}`
+Tasks and activity_log are published via Supabase Realtime.
 
 ## Environment Variables
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...  # Server-side only
-```
-
-## Troubleshooting
-
-### Column doesn't exist error
-Migrations are idempotent - safe to re-run. They use `IF NOT EXISTS` and `DO $$ ... END $$` blocks.
-
-### RLS blocking queries
-```sql
--- Check policies
-SELECT * FROM pg_policies WHERE tablename = 'your_table';
 ```

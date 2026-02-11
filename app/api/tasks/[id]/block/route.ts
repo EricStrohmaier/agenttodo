@@ -14,7 +14,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
 
   if (!body.reason?.trim()) return error("reason is required");
 
-  const { data: task, error: fetchErr } = await db.from("tasks").select("blockers").eq("id", id).single();
+  const { data: task, error: fetchErr } = await db.from("tasks").select("blockers").eq("id", id).eq("user_id", auth.data.userId).single();
   if (fetchErr) return error("Task not found", 404);
 
   const blockers = [...(task.blockers || []), body.reason.trim()];
@@ -23,6 +23,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
     .from("tasks")
     .update({ status: "blocked", blockers })
     .eq("id", id)
+    .eq("user_id", auth.data.userId)
     .select()
     .single();
 

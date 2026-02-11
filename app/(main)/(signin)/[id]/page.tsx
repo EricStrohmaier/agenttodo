@@ -130,23 +130,23 @@ export default async function SignIn({
   if (!card) return redirect("/signin");
 
   return (
-    <div className="w-full min-h-dvh flex flex-col items-center justify-center px-4 bg-page relative overflow-hidden">
+    <div className="w-full min-h-dvh flex flex-col items-center justify-center px-4 bg-background relative overflow-hidden">
       <main className="relative z-10 flex flex-col items-center w-full max-w-[400px]">
         {card}
 
         {/* Terms of service at the bottom */}
         <div className="text-center mt-8 pb-8">
-          <p className="text-xs sm:text-sm text-content-muted font-body">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             By continuing, you agree to AgentTodo&apos;s{" "}
             <a
-              className="text-brand hover:underline transition-colors"
+              className="text-foreground hover:underline transition-colors"
               href="/terms"
             >
               Terms of Service
             </a>{" "}
             and{" "}
             <a
-              className="text-brand hover:underline transition-colors"
+              className="text-foreground hover:underline transition-colors"
               href="/privacy"
             >
               Privacy Policy

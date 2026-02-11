@@ -9,9 +9,12 @@ interface TaskListProps {
   loading: boolean;
   onSelect: (task: Task) => void;
   onToggleDone: (task: Task) => void;
+  onUpdate?: (id: string, updates: Partial<Task>) => void;
+  onDelete?: (id: string) => void;
+  shiftHeld?: boolean;
 }
 
-export function TaskList({ tasks, loading, onSelect, onToggleDone }: TaskListProps) {
+export function TaskList({ tasks, loading, onSelect, onToggleDone, onUpdate, onDelete, shiftHeld }: TaskListProps) {
   if (loading) {
     return (
       <div className="divide-y">
@@ -40,7 +43,7 @@ export function TaskList({ tasks, loading, onSelect, onToggleDone }: TaskListPro
   return (
     <div className="divide-y">
       {tasks.map((task) => (
-        <TaskRow key={task.id} task={task} onSelect={onSelect} onToggleDone={onToggleDone} />
+        <TaskRow key={task.id} task={task} onSelect={onSelect} onToggleDone={onToggleDone} onUpdate={onUpdate} onDelete={onDelete} shiftHeld={shiftHeld} />
       ))}
     </div>
   );

@@ -14,6 +14,7 @@ const ACTION_ICONS: Record<string, string> = {
   added_subtask: "📎",
   request_review: "👀",
   unclaimed: "↩️",
+  message_sent: "💬",
 };
 
 function formatDetails(details: Record<string, any>): string {
@@ -38,10 +39,18 @@ export function ActivityLog({ taskId }: ActivityLogProps) {
 
   useEffect(() => {
     async function fetchLogs() {
-      const res = await fetch(`/api/tasks/${taskId}`);
-      const json = await res.json();
-      if (json.data?.activity_log) {
-        setLogs(json.data.activity_log);
+      try {
+        const res = await fetch(`/api/tasks/${taskId}`);
+        if (!res.ok) {
+          setLoading(false);
+          return;
+        }
+        const json = await res.json();
+        if (json.data?.activity_log) {
+          setLogs(json.data.activity_log);
+        }
+      } catch {
+        // fetch or json parse failed
       }
       setLoading(false);
     }

@@ -15,8 +15,8 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
 
   if (!Array.isArray(body.tasks) || body.tasks.length === 0) return error("tasks array is required");
 
-  // Verify parent exists
-  const { error: fetchErr } = await db.from("tasks").select("id").eq("id", id).single();
+  // Verify parent exists and belongs to user
+  const { error: fetchErr } = await db.from("tasks").select("id").eq("id", id).eq("user_id", auth.data.userId).single();
   if (fetchErr) return error("Parent task not found", 404);
 
   const inserts = body.tasks.map((t: CreateTaskInput) => ({
@@ -29,6 +29,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
     assigned_agent: t.assigned_agent || null,
     created_by: t.created_by || auth.data!.agent,
     requires_human_review: t.requires_human_review ?? true,
+    user_id: auth.data!.userId,
   }));
 
   const { data: tasks, error: dbErr } = await db.from("tasks").insert(inserts).select();
@@ -40,6 +41,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
     agent: auth.data!.agent,
     action: "added_subtask" as const,
     details: { subtask_id: t.id, title: t.title },
+    user_id: auth.data!.userId,
   }));
   if (logs.length) await db.from("activity_log").insert(logs);
 

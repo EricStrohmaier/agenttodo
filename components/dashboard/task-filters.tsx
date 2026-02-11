@@ -9,13 +9,15 @@ interface TaskFiltersProps {
     status?: TaskStatus | "all";
     intent?: TaskIntent | "all";
     agent?: string;
+    project?: string;
     sort?: "priority" | "created_at" | "updated_at";
   };
   onFiltersChange: (filters: any) => void;
   agents: string[];
+  projects: string[];
 }
 
-export function TaskFilters({ filters, onFiltersChange, agents }: TaskFiltersProps) {
+export function TaskFilters({ filters, onFiltersChange, agents, projects }: TaskFiltersProps) {
   return (
     <div className="flex items-center gap-2 px-6 md:px-12 lg:px-20 py-2 border-b flex-wrap">
       <Select
@@ -60,6 +62,23 @@ export function TaskFilters({ filters, onFiltersChange, agents }: TaskFiltersPro
             <SelectItem value="all">All agents</SelectItem>
             {agents.map((a) => (
               <SelectItem key={a} value={a}>{a}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
+      {projects.length > 0 && (
+        <Select
+          value={filters.project || "all"}
+          onValueChange={(v) => onFiltersChange({ ...filters, project: v === "all" ? undefined : v })}
+        >
+          <SelectTrigger className="w-[130px] h-8 text-xs">
+            <SelectValue placeholder="Project" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All projects</SelectItem>
+            {projects.map((p) => (
+              <SelectItem key={p} value={p}>{p}</SelectItem>
             ))}
           </SelectContent>
         </Select>
