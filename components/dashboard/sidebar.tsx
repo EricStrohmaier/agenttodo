@@ -11,6 +11,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 
 const navItems = [
   { href: "/dashboard", label: "Tasks", icon: CheckSquare },
@@ -22,26 +23,19 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
   const router = useRouter();
   const supabase = createClient();
   const [openTaskCount, setOpenTaskCount] = useState<number | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+  }, []);
 
   useEffect(() => {
     async function fetchCount() {
       try {
-        const res = await fetch("/api/tasks?limit=1");
+        const res = await fetch("/api/tasks?limit=100");
         const json = await res.json();
         if (json.data) {
-          const open = json.data.filter((t: any) => t.status !== "done").length;
-          // Use total count from meta if available, otherwise just show what we know
-          if (json.meta?.total !== undefined) {
-            // meta.total is total matching, but we want open tasks
-            setOpenTaskCount(json.meta.totalOpen ?? open);
-          } else {
-            // Fetch all to count
-            const res2 = await fetch("/api/tasks?limit=500");
-            const json2 = await res2.json();
-            if (json2.data) {
-              setOpenTaskCount(json2.data.filter((t: any) => t.status !== "done").length);
-            }
-          }
+          setOpenTaskCount(json.data.filter((t: any) => t.status !== "done").length);
         }
       } catch {}
     }
@@ -96,15 +90,31 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
 
       <div className="p-3 space-y-1">
         <ThemeToggle />
+        {user && (
+          <div className="px-3 py-2">
+            <div className="flex items-center gap-2">
+              <Avatar className="w-7 h-7">
+                <AvatarFallback className="text-xs bg-primary/10 text-primary font-medium">
+                  {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {user.user_metadata?.full_name || user.email?.split("@")[0] || "User"}
+                </p>
+                {user.email && (
+                  <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
         <button
           onClick={handleSignOut}
           className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors w-full"
         >
-          <Avatar className="w-6 h-6">
-            <AvatarFallback className="text-xs">U</AvatarFallback>
-          </Avatar>
+          <LogOut className="w-4 h-4" />
           <span className="flex-1 text-left">Sign out</span>
-          <LogOut className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>
