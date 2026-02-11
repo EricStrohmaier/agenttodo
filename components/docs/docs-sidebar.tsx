@@ -34,13 +34,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       <div className="p-5 pb-4">
-        <Link href="/" className="text-sm font-semibold tracking-tight" onClick={onNavigate}>
-          AgentBoard
-        </Link>
-        <span className="text-muted-foreground text-sm ml-2">/</span>
-        <Link href="/docs" className="text-sm font-medium ml-2 text-muted-foreground hover:text-foreground transition-colors" onClick={onNavigate}>
-          Docs
-        </Link>
+        <h2 className="text-sm font-semibold tracking-tight">Docs</h2>
       </div>
       <nav className="px-3 pb-8 space-y-6 flex-1">
         {sections.map((section) => (
@@ -93,7 +87,7 @@ export function DocsSidebar() {
       {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-md border bg-background md:hidden"
+        className="fixed top-16 left-4 z-50 p-2 rounded-md border bg-background md:hidden"
         aria-label="Open docs menu"
       >
         <Menu className="w-4 h-4" />
@@ -117,7 +111,7 @@ export function DocsSidebar() {
       )}
 
       {/* Desktop sidebar */}
-      <aside className="w-64 shrink-0 border-r h-screen sticky top-0 overflow-y-auto hidden md:flex flex-col">
+      <aside className="w-64 shrink-0 border-r h-[calc(100vh-3.5rem)] sticky top-14 overflow-y-auto hidden md:flex flex-col">
         <SidebarContent />
       </aside>
     </>

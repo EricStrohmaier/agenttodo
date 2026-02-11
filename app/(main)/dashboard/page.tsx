@@ -36,7 +36,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh)]">
+    <div className="flex flex-col h-[calc(100dvh)] max-w-5xl mx-auto w-full">
       {/* Header */}
       <div className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-3 border-b">
         <h1 className="text-lg font-semibold pl-10 md:pl-0">Tasks</h1>
