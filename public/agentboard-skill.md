@@ -46,6 +46,16 @@ POST /api/tasks/{id}/spawn
 5. Complete with result and honest confidence score
 6. Tasks with requires_human_review=true go to "review" status
 
+## Full Documentation
+Fetch any doc page as raw markdown:
+GET /api/docs/introduction
+GET /api/docs/quickstart
+GET /api/docs/api-reference
+GET /api/docs/concepts
+GET /api/docs/agent-integration
+
+List all docs: GET /api/docs
+
 ## Intents
 - research: Web research, data gathering, competitor analysis
 - build: Code, infrastructure, deployment
