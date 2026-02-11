@@ -20,7 +20,7 @@ const navItems = [
   { href: "/docs", label: "Docs", icon: FileText, external: true },
 ];
 
-function NavContent({ user, onNavigate, collapsed = false }: { user: User | null; onNavigate?: () => void; collapsed?: boolean }) {
+function NavContent({ user, onNavigate, collapsed = false, onToggle }: { user: User | null; onNavigate?: () => void; collapsed?: boolean; onToggle?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -48,14 +48,24 @@ function NavContent({ user, onNavigate, collapsed = false }: { user: User | null
   return (
     <TooltipProvider delayDuration={0}>
       <div className="flex flex-col h-full">
-        {/* Logo */}
-        <div className={`p-4 pb-2 ${collapsed ? "flex justify-center" : ""}`}>
+        {/* Logo + Toggle */}
+        <div className={`p-4 pb-2 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
           <Link href="/dashboard" className={`flex items-center gap-2 font-semibold text-base ${collapsed ? "justify-center" : ""}`} onClick={onNavigate}>
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm shrink-0">
               <span className="text-primary-foreground text-sm font-bold">A</span>
             </div>
             {!collapsed && <span>AgentBoard</span>}
           </Link>
+          {!collapsed && onToggle && (
+            <button onClick={onToggle} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors">
+              <PanelLeftClose className="w-4 h-4" />
+            </button>
+          )}
+          {collapsed && onToggle && (
+            <button onClick={onToggle} className="absolute top-12 left-1/2 -translate-x-1/2 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors">
+              <PanelLeftOpen className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         {/* Nav */}
@@ -193,18 +203,7 @@ export function Sidebar() {
     <>
       {/* Desktop sidebar */}
       <aside className={`hidden md:flex ${collapsed ? "w-14" : "w-60"} border-r bg-sidebar flex-col shrink-0 h-screen sticky top-0 transition-all duration-200 relative`}>
-        {/* Toggle button */}
-        <button
-          onClick={toggleCollapsed}
-          className={`absolute top-4 ${collapsed ? "left-1/2 -translate-x-1/2" : "right-2"} z-10 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors`}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
-        </button>
-
-        <div className={collapsed ? "pt-10" : ""}>
-          <NavContent user={user} collapsed={collapsed} />
-        </div>
+        <NavContent user={user} collapsed={collapsed} onToggle={toggleCollapsed} />
       </aside>
 
       {/* Mobile hamburger */}
