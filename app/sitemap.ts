@@ -11,6 +11,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/docs/api", priority: 0.8 },
     { path: "/docs/concepts", priority: 0.7 },
     { path: "/docs/agents", priority: 0.8 },
+    { path: "/docs/self-hosting", priority: 0.8 },
+    { path: "/docs/use-cases", priority: 0.7 },
+    { path: "/docs/best-practices", priority: 0.7 },
+    { path: "/docs/faq", priority: 0.7 },
   ];
 
   return staticPages.map(({ path, priority }) => ({

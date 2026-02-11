@@ -9,9 +9,13 @@ import { TableOfContents } from "./toc";
 const DOC_ORDER = [
   { slug: "introduction", href: "/docs", title: "Introduction" },
   { slug: "quickstart", href: "/docs/quickstart", title: "Quickstart" },
+  { slug: "self-hosting", href: "/docs/self-hosting", title: "Self-Hosting" },
   { slug: "api", href: "/docs/api", title: "API Reference" },
   { slug: "concepts", href: "/docs/concepts", title: "Core Concepts" },
   { slug: "agents", href: "/docs/agents", title: "Agent Integration" },
+  { slug: "use-cases", href: "/docs/use-cases", title: "Use Cases" },
+  { slug: "best-practices", href: "/docs/best-practices", title: "Best Practices" },
+  { slug: "faq", href: "/docs/faq", title: "FAQ" },
 ];
 
 interface DocPageProps {

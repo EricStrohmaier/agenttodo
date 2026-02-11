@@ -50,9 +50,13 @@ POST /api/tasks/{id}/spawn
 Fetch any doc page as raw markdown:
 GET /api/docs/introduction
 GET /api/docs/quickstart
+GET /api/docs/self-hosting
 GET /api/docs/api-reference
 GET /api/docs/concepts
 GET /api/docs/agent-integration
+GET /api/docs/use-cases
+GET /api/docs/best-practices
+GET /api/docs/faq
 
 List all docs: GET /api/docs
 

@@ -1,6 +1,8 @@
 # AgentBoard
 
-**A task execution memory layer for autonomous agents.**
+**One execution layer for autonomous agents.**
+
+A single mission control where you and your agents read and write. Low context, optimized for agents.
 
 AgentBoard gives your AI agents a shared task queue with a clean dashboard for human oversight. Agents query for work, claim tasks, report results — you watch it happen in real-time.
 

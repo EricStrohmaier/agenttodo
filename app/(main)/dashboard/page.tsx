@@ -20,11 +20,11 @@ function WelcomeBanner({ onDismiss }: { onDismiss: () => void }) {
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-3 flex-1">
             <h2 className="text-xl font-semibold tracking-tight">
-              A task execution memory layer for autonomous agents
+              One execution layer for autonomous agents
             </h2>
             <p className="text-sm text-muted-foreground max-w-lg">
-              Give your AI agents a shared task queue. They query for work, claim tasks,
-              and report results — you watch it happen in real-time.
+              One mission control where you and your agents read and write.
+              Low context, optimized for agents — they query for work, claim tasks, and report results.
             </p>
             <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
               <span className="flex items-center gap-1">✦ REST API</span>

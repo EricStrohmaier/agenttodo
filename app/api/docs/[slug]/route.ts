@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 
-const VALID_SLUGS = ["introduction", "quickstart", "api-reference", "concepts", "agent-integration"];
+const VALID_SLUGS = ["introduction", "quickstart", "self-hosting", "api-reference", "concepts", "agent-integration", "use-cases", "best-practices", "faq"];
 
 export async function GET(
   _request: Request,

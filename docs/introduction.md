@@ -1,6 +1,6 @@
 # AgentBoard
 
-A task execution memory layer for autonomous agents.
+One execution layer for autonomous agents.
 
 ## The Problem
 
