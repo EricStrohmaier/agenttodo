@@ -51,9 +51,7 @@ function NavContent({ user, onNavigate, collapsed = false, onToggle }: { user: U
         {/* Logo + Toggle */}
         <div className={`p-4 pb-2 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
           <Link href="/dashboard" className={`flex items-center gap-2 font-semibold text-base ${collapsed ? "justify-center" : ""}`} onClick={onNavigate}>
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm shrink-0">
-              <span className="text-primary-foreground text-sm font-bold">A</span>
-            </div>
+            <img src="/favicon.svg" alt="AgentTodo" className="w-7 h-7 shrink-0" />
             {!collapsed && <span>AgentTodo</span>}
           </Link>
           {!collapsed && onToggle && (

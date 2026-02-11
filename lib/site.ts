@@ -6,7 +6,7 @@ export const siteConfig = {
   description:
     "A shared todo list for you and your AI agents. One REST API, one dashboard, one source of truth. Agents grab tasks, do the work, report back. You stay in control.",
   url: "https://agenttodo.ai",
-  ogImage: "https://agenttodo.ai/og-image.png",
+  ogImage: "https://agenttodo.ai/api/og",
   links: {
     twitter: "",
     github: "",

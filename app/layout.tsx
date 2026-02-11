@@ -26,17 +26,20 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   keywords: siteConfig.keywords,
   icons: {
-    icon: "/icon.png",
+    icon: "/favicon.svg",
+    apple: "/logo.svg",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: siteConfig.name,
+    images: [{ url: "/api/og", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
+    images: ["/api/og"],
   },
 };
 
