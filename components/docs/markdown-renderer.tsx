@@ -5,32 +5,48 @@ import remarkGfm from "remark-gfm";
 import { CodeBlock } from "./code-block";
 import type { Components } from "react-markdown";
 
+function slugify(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 export function MarkdownRenderer({ content }: { content: string }) {
   const components: Components = {
     h1: ({ children }) => (
-      <h1 className="text-3xl font-bold tracking-tight mb-2">{children}</h1>
+      <h1 id={slugify(String(children))} className="text-3xl font-bold tracking-tight mb-4 scroll-mt-20">
+        {children}
+      </h1>
     ),
     h2: ({ children }) => (
-      <h2 className="text-xl font-semibold mt-10 mb-4">{children}</h2>
+      <h2 id={slugify(String(children))} className="text-xl font-semibold mt-12 mb-4 pt-8 border-t border-border/40 scroll-mt-20">
+        {children}
+      </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="text-lg font-semibold mt-8 mb-3">{children}</h3>
+      <h3 id={slugify(String(children))} className="text-lg font-semibold mt-8 mb-3 scroll-mt-20">
+        {children}
+      </h3>
     ),
     h4: ({ children }) => (
-      <h4 className="text-sm font-medium mt-6 mb-2">{children}</h4>
+      <h4 id={slugify(String(children))} className="text-sm font-medium mt-6 mb-2 scroll-mt-20">
+        {children}
+      </h4>
     ),
     p: ({ children }) => (
-      <p className="text-muted-foreground mb-4 leading-[1.7]">{children}</p>
+      <p className="text-foreground/80 mb-4 leading-[1.7]">{children}</p>
     ),
     ul: ({ children }) => (
-      <ul className="list-disc pl-6 space-y-2 text-muted-foreground mb-4">{children}</ul>
+      <ul className="list-disc pl-6 space-y-2 text-foreground/80 mb-4">{children}</ul>
     ),
     ol: ({ children }) => (
-      <ol className="list-decimal pl-6 space-y-2 text-muted-foreground mb-4">{children}</ol>
+      <ol className="list-decimal pl-6 space-y-2 text-foreground/80 mb-4">{children}</ol>
     ),
     li: ({ children }) => <li>{children}</li>,
     a: ({ href, children }) => (
-      <a href={href} className="text-primary underline underline-offset-4">
+      <a href={href} className="text-blue-600 dark:text-blue-400 underline underline-offset-4">
         {children}
       </a>
     ),
@@ -48,7 +64,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
         );
       }
       return (
-        <code className="text-sm bg-muted px-1.5 py-0.5 rounded font-mono" {...props}>
+        <code className="text-sm bg-muted/80 px-1.5 py-0.5 rounded font-mono" {...props}>
           {children}
         </code>
       );
@@ -56,20 +72,20 @@ export function MarkdownRenderer({ content }: { content: string }) {
     pre: ({ children }) => <>{children}</>,
     table: ({ children }) => (
       <div className="overflow-x-auto mb-4">
-        <table className="w-full text-sm">{children}</table>
+        <table className="w-full text-sm border border-border">{children}</table>
       </div>
     ),
-    thead: ({ children }) => <thead>{children}</thead>,
+    thead: ({ children }) => <thead className="bg-muted/50">{children}</thead>,
     tbody: ({ children }) => (
-      <tbody className="text-muted-foreground">{children}</tbody>
+      <tbody className="text-foreground/80">{children}</tbody>
     ),
-    tr: ({ children }) => <tr className="border-b">{children}</tr>,
+    tr: ({ children }) => <tr className="border-b border-border">{children}</tr>,
     th: ({ children }) => (
-      <th className="py-2 pr-4 text-left font-medium">{children}</th>
+      <th className="py-2 px-4 text-left font-medium border border-border">{children}</th>
     ),
-    td: ({ children }) => <td className="py-2 pr-4">{children}</td>,
+    td: ({ children }) => <td className="py-2 px-4 border border-border">{children}</td>,
     blockquote: ({ children }) => (
-      <blockquote className="border-l-2 border-muted pl-4 italic text-muted-foreground mb-4">
+      <blockquote className="border-l-2 border-blue-500/30 pl-4 italic text-muted-foreground mb-4">
         {children}
       </blockquote>
     ),

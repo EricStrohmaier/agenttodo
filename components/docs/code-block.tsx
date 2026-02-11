@@ -19,11 +19,16 @@ export function CodeBlock({ children, language, title }: CodeBlockProps) {
   };
 
   return (
-    <div className="relative group my-4 rounded-lg border bg-zinc-950 dark:bg-zinc-900 overflow-hidden">
+    <div className="relative group my-4 rounded-lg border border-border/50 bg-[#0a0a0a] dark:bg-[#141414] overflow-hidden">
       {title && (
         <div className="px-4 py-2 border-b border-zinc-800 text-xs text-zinc-400 font-mono">
           {title}
         </div>
+      )}
+      {language && language !== "text" && (
+        <span className="absolute top-2 right-10 text-[10px] text-zinc-500 font-mono uppercase tracking-wide">
+          {language}
+        </span>
       )}
       <button
         onClick={copy}
