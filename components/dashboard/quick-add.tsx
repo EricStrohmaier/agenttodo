@@ -34,7 +34,7 @@ export function QuickAdd({ onAdd }: QuickAddProps) {
   };
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 border-b bg-background">
+    <div className="flex items-center gap-2 px-6 md:px-12 lg:px-20 py-2 border-b bg-background">
       <Plus className="w-4 h-4 text-muted-foreground shrink-0" />
       <div className="relative flex-1">
         <Input

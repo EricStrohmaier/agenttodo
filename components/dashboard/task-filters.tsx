@@ -17,7 +17,7 @@ interface TaskFiltersProps {
 
 export function TaskFilters({ filters, onFiltersChange, agents }: TaskFiltersProps) {
   return (
-    <div className="flex items-center gap-2 px-4 py-2 border-b flex-wrap">
+    <div className="flex items-center gap-2 px-6 md:px-12 lg:px-20 py-2 border-b flex-wrap">
       <Select
         value={filters.status || "all"}
         onValueChange={(v) => onFiltersChange({ ...filters, status: v as TaskStatus | "all" })}

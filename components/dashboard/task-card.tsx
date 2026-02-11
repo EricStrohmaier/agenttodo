@@ -14,7 +14,7 @@ interface TaskCardProps {
 export function TaskCard({ task, onSelect }: TaskCardProps) {
   return (
     <div
-      className="p-3 rounded-lg border bg-card hover:shadow-sm cursor-pointer transition-all"
+      className="p-3 rounded-md border bg-card hover:bg-accent/50 cursor-pointer transition-colors"
       onClick={() => onSelect(task)}
     >
       <p className="text-sm font-medium mb-2 line-clamp-2">{task.title}</p>

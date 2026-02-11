@@ -14,7 +14,7 @@ interface TaskBoardProps {
 export function TaskBoard({ tasks, loading, onSelect }: TaskBoardProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 px-6 md:px-12 lg:px-20 py-4">
         {ALL_STATUSES.map((s) => (
           <div key={s} className="space-y-3">
             <Skeleton className="h-6 w-24" />
@@ -34,7 +34,7 @@ export function TaskBoard({ tasks, loading, onSelect }: TaskBoardProps) {
   }));
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 overflow-x-auto">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 px-6 md:px-12 lg:px-20 py-4 overflow-x-auto">
       {columns.map((col) => (
         <div key={col.status} className="min-w-[200px]">
           <div className="flex items-center gap-2 mb-3 px-1">

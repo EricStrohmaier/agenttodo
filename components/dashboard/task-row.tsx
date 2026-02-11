@@ -32,7 +32,7 @@ function PriorityDots({ priority }: { priority: number }) {
 export function TaskRow({ task, onSelect, onToggleDone }: TaskRowProps) {
   return (
     <div
-      className="flex items-center gap-3 px-4 py-2.5 border-b hover:bg-accent/30 cursor-pointer transition-colors group"
+      className="flex items-center gap-3 px-6 md:px-12 lg:px-20 py-2.5 border-b hover:bg-accent/50 cursor-pointer transition-colors group"
       onClick={() => onSelect(task)}
     >
       <div onClick={(e) => e.stopPropagation()}>
