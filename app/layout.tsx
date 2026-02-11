@@ -46,7 +46,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");var d=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme:dark)").matches);document.documentElement.classList.toggle("dark",d);document.cookie="theme="+(d?"dark":"light")+";path=/;max-age=31536000;SameSite=Lax"}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body
         className={`${bodyFont.variable} ${monoFont.variable} h-full font-body`}
       >

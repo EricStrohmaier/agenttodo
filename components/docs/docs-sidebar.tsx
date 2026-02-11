@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ExternalLink, Menu, X } from "lucide-react";
+import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 
 const sections = [
   {
@@ -64,14 +65,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         ))}
       </nav>
-      <div className="px-6 py-4 border-t">
+      <div className="px-3 py-3 border-t space-y-1">
+        <ThemeToggle />
         <a
           href="https://github.com/EricStrohmaier/agentboard"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors"
         >
-          <ExternalLink className="w-3.5 h-3.5" />
+          <ExternalLink className="w-4 h-4" />
           GitHub
         </a>
       </div>
