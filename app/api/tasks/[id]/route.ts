@@ -7,6 +7,14 @@ import type { TaskIntent, TaskStatus } from "@/types/tasks";
 const VALID_INTENTS: TaskIntent[] = ["research", "build", "write", "think", "admin", "ops"];
 const VALID_STATUSES: TaskStatus[] = ["todo", "in_progress", "blocked", "review", "done"];
 
+/** Metadata must be flat key-value pairs (no nested objects/arrays). */
+function isValidMetadata(v: any): boolean {
+  if (typeof v !== "object" || v === null || Array.isArray(v)) return false;
+  return Object.values(v).every(
+    (val) => val === null || typeof val === "string" || typeof val === "number" || typeof val === "boolean"
+  );
+}
+
 async function handler(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authenticateRequest(req);
   if (auth.error || !auth.data) return error(auth.error || "Unauthorized", 401);
@@ -18,12 +26,22 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
     const { data: task, error: taskErr } = await db.from("tasks").select("*").eq("id", id).eq("user_id", auth.data.userId).single();
     if (taskErr) return error("Task not found", 404);
 
-    const [subtasks, logs] = await Promise.all([
+    const [subtasks, logs, messages, attachments, dependencies] = await Promise.all([
       db.from("tasks").select("*").eq("parent_task_id", id).eq("user_id", auth.data.userId).order("priority", { ascending: false }),
       db.from("activity_log").select("*").eq("task_id", id).eq("user_id", auth.data.userId).order("created_at", { ascending: false }).limit(20),
+      db.from("task_messages").select("*").eq("task_id", id).eq("user_id", auth.data.userId).order("created_at", { ascending: true }),
+      db.from("task_attachments").select("*").eq("task_id", id).eq("user_id", auth.data.userId).order("created_at", { ascending: true }),
+      db.from("task_dependencies").select("*, depends_on:depends_on_task_id(id, title, status)").eq("task_id", id).eq("user_id", auth.data.userId),
     ]);
 
-    return success({ ...task, subtasks: subtasks.data || [], activity_log: logs.data || [] });
+    return success({
+      ...task,
+      subtasks: subtasks.data || [],
+      activity_log: logs.data || [],
+      messages: messages.data || [],
+      attachments: attachments.data || [],
+      dependencies: dependencies.data || [],
+    });
   }
 
   if (req.method === "PATCH") {
@@ -43,11 +61,10 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
       artifacts: (v) => Array.isArray(v),
       confidence: (v) => v === null || (typeof v === "number" && v >= 0 && v <= 1),
       blockers: (v) => Array.isArray(v),
-      attachments: (v) => Array.isArray(v),
       project: (v) => v === null || typeof v === "string",
-      project_context: (v) => v === null || typeof v === "string",
-      human_input_needed: (v) => typeof v === "boolean",
-      messages: (v) => Array.isArray(v),
+      metadata: isValidMetadata,
+      recurrence: (v) => v === null || typeof v === "object",
+      recurrence_source_id: (v) => v === null || typeof v === "string",
     };
 
     const update: Record<string, any> = {};

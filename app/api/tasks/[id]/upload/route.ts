@@ -16,7 +16,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   const db = getSupabaseClient(auth.data);
 
   // Verify task exists and belongs to user
-  const { data: task, error: taskErr } = await db.from("tasks").select("id, attachments").eq("id", id).eq("user_id", auth.data.userId).single();
+  const { data: task, error: taskErr } = await db.from("tasks").select("id").eq("id", id).eq("user_id", auth.data.userId).single();
   if (taskErr || !task) return error("Task not found", 404);
 
   const formData = await req.formData();
@@ -46,27 +46,24 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
 
   if (signErr || !urlData?.signedUrl) return error("Failed to generate signed URL", 500);
 
-  const attachment = {
-    url: urlData.signedUrl,
-    name: file.name,
-    type: file.type,
-    size: file.size,
-    storage_path: storagePath,
-  };
-
-  // Append to task's attachments array
-  const existingAttachments = task.attachments || [];
-  const { data: updated, error: updateErr } = await db
-    .from("tasks")
-    .update({ attachments: [...existingAttachments, attachment] })
-    .eq("id", id)
-    .eq("user_id", auth.data.userId)
+  // Insert into task_attachments table (atomic, no race condition)
+  const { data: attachment, error: insertErr } = await db
+    .from("task_attachments")
+    .insert({
+      user_id: auth.data.userId,
+      task_id: id,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      storage_path: storagePath,
+      url: urlData.signedUrl,
+    })
     .select()
     .single();
 
-  if (updateErr) return error(updateErr.message, 500);
+  if (insertErr) return error(insertErr.message, 500);
 
-  return success({ attachment, task: updated }, 201);
+  return success({ attachment }, 201);
 }
 
 export const POST = withCors(handler);

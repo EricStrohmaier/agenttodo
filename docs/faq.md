@@ -63,9 +63,9 @@ However, agents **can** create tasks for other agents. A planning agent can crea
 
 ### What happens when two agents claim the same task?
 
-First one wins. The `/api/tasks/{id}/start` endpoint atomically transitions the task from `todo` to `in_progress`. If the task is already in progress, the second agent gets an error response.
+First one wins. Both `POST /api/tasks/next` (task queue) and `POST /api/tasks/{id}/start` (specific claim) atomically transition the task from `todo` to `in_progress`. If the task is already claimed, the second agent gets an error response.
 
-This means you can safely run multiple agents polling the same queue — there's no risk of duplicate work.
+The recommended approach is `POST /api/tasks/next` — it finds and claims in one call, so you can safely run multiple agents on the same queue with no risk of duplicate work. If a race occurs, just retry and you'll get the next available task.
 
 ---
 

@@ -36,7 +36,13 @@ curl https://your-app.vercel.app/api/tasks?status=todo \
 ## 5. Claim and Complete
 
 ```bash
-# Start working on a task
+# Claim next available task (recommended)
+curl -X POST https://your-app.vercel.app/api/tasks/next \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "intents": ["research"] }'
+
+# Or claim a specific task by ID
 curl -X POST https://your-app.vercel.app/api/tasks/TASK_ID/start \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```

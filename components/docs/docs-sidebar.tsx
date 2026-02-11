@@ -25,6 +25,7 @@ const sections = [
   {
     title: "Guides",
     items: [
+      { href: "/docs/dashboard", label: "Dashboard Guide" },
       { href: "/docs/agents", label: "Agent Integration" },
     ],
   },
@@ -34,6 +35,7 @@ const sections = [
       { href: "/docs/use-cases", label: "Use Cases" },
       { href: "/docs/best-practices", label: "Best Practices" },
       { href: "/docs/faq", label: "FAQ" },
+      { href: "/docs/story", label: "Why I Built This" },
     ],
   },
 ];

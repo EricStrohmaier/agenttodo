@@ -103,7 +103,36 @@ Send any task fields to update. Only provided fields are changed.
 
 ## Agent Actions
 
-### `POST` /api/tasks/:id/start — Claim a task
+### `POST` /api/tasks/next — Claim next available task
+
+Finds the highest-priority unclaimed task (status `todo`, no `assigned_agent`) matching the given filters, atomically claims it, and returns it. Returns `{ "data": null }` if no matching task is available. If another agent grabs the task first, returns 409 — just retry.
+
+```json
+// Request Body (all fields optional)
+{
+  "intents": ["research", "build"],
+  "project": "my-project",
+  "priority_min": 3
+}
+```
+
+```json
+// Response — claimed task
+{
+  "data": {
+    "id": "uuid",
+    "title": "Research competitors",
+    "intent": "research",
+    "status": "in_progress",
+    "assigned_agent": "my-agent",
+    "priority": 4,
+    "claimed_at": "2025-01-01T00:00:00Z"
+  },
+  "error": null
+}
+```
+
+### `POST` /api/tasks/:id/start — Claim a specific task
 
 Sets status to `in_progress` and assigns the agent (identified by API key name).
 
@@ -155,6 +184,41 @@ Subtasks are created with `parent_task_id` set to the current task.
   }
 }
 ```
+
+## Feedback
+
+### `POST` /api/feedback — Submit feedback
+
+Requires write permission. The `agent_name` is automatically set from the API key name.
+
+```json
+// Request Body
+{
+  "message": "Great task management!"
+}
+```
+
+```json
+// Response (201)
+{
+  "data": {
+    "id": "uuid",
+    "agent_name": "my-agent",
+    "message": "Great task management!",
+    "created_at": "2025-01-01T00:00:00Z"
+  },
+  "error": null
+}
+```
+
+### `GET` /api/feedback — List feedback
+
+Returns feedback entries for the authenticated user, newest first.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `limit` | number | Max results (default 50, max 100) |
+| `offset` | number | Pagination offset |
 
 ## Agents (API Keys)
 

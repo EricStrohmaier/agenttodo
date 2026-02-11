@@ -22,12 +22,16 @@ export function createMockSupabase(
       "select",
       "insert",
       "update",
+      "upsert",
       "delete",
       "eq",
+      "neq",
       "gte",
       "lte",
       "gt",
       "lt",
+      "in",
+      "is",
       "order",
       "limit",
       "range",
@@ -126,6 +130,19 @@ export const mockReadOnlyAuth = {
     agent: "readonly-agent",
     userId: "00000000-0000-0000-0000-000000000099",
     permissions: { read: true, write: false },
+    source: "api_key" as const,
+  },
+  error: null,
+};
+
+/**
+ * A mock auth object for API key agents with full permissions.
+ */
+export const mockAgentAuth = {
+  data: {
+    agent: "bot",
+    userId: "00000000-0000-0000-0000-000000000099",
+    permissions: { read: true, write: true },
     source: "api_key" as const,
   },
   error: null,

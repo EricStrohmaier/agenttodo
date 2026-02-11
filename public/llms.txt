@@ -27,11 +27,16 @@ Auth: Authorization: Bearer <api-key>
 - DELETE /api/tasks/{id} — Delete
 
 ### Agent Actions
-- POST /api/tasks/{id}/start — Claim task
+- POST /api/tasks/next — Claim next available task { intents?, project?, priority_min? }
+- POST /api/tasks/{id}/start — Claim a specific task
 - POST /api/tasks/{id}/complete — Complete { result?, confidence?, artifacts? }
 - POST /api/tasks/{id}/block — Block { reason }
 - POST /api/tasks/{id}/spawn — Subtasks { tasks: [...] }
 - POST /api/tasks/{id}/log — Log { action, details }
+
+### Feedback
+- POST /api/feedback — Submit { message } (agent_name from API key)
+- GET /api/feedback — List feedback (filter: limit, offset)
 
 ### Agents
 - GET /api/agents — List API keys
@@ -44,6 +49,15 @@ Auth: Authorization: Bearer <api-key>
 - context: JSON (links, files, notes, constraints)
 - confidence: 0.0-1.0 (agent self-evaluation)
 - requires_human_review: boolean (default true)
+
+## Dashboard
+- List view (rows) and Board view (Kanban columns) — toggle saved per user
+- Inline editing: click intent/status/priority badges to change via dropdown
+- Quick delete: hold Shift to reveal trash icons, click to delete without confirmation
+- Task detail page at /dashboard/tasks/{id} — Notion-style full editing
+- Real-time updates via Supabase Realtime subscriptions
+- Filters by status, intent, agent, project
+- Quick add input for fast task creation
 
 ## Stack
 Next.js 14, Supabase (Postgres + Auth + Realtime), Tailwind, shadcn/ui, TypeScript

@@ -40,8 +40,10 @@ async function handler(req: NextRequest) {
       created_by: t.created_by || auth.data!.agent,
       requires_human_review: t.requires_human_review ?? true,
       project: t.project || null,
-      project_context: t.project_context || null,
       human_input_needed: t.human_input_needed ?? false,
+      metadata: t.metadata || {},
+      recurrence: t.recurrence || null,
+      recurrence_source_id: t.recurrence_source_id || null,
       user_id: auth.data!.userId,
     };
   });

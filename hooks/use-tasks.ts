@@ -185,46 +185,22 @@ export function useTasks() {
       return null;
     }
     toast.success("File uploaded");
-    if (json.data?.task) {
-      optimisticUpdates.current.add(taskId);
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? json.data.task : t)));
-    }
     return json.data;
   };
 
   const sendMessage = async (taskId: string, content: string) => {
-    // Fetch current task to get latest messages
-    const res = await fetch(`/api/tasks/${taskId}`);
-    const json = await res.json();
-    if (json.error || !json.data) {
-      toast.error(json.error || "Failed to fetch task");
-      return null;
-    }
-
-    const currentMessages = json.data.messages || [];
-    const newMessage = {
-      from: "human",
-      content,
-      created_at: new Date().toISOString(),
-    };
-    const updatedMessages = [...currentMessages, newMessage];
-
-    const patchRes = await fetch(`/api/tasks/${taskId}`, {
-      method: "PATCH",
+    const res = await fetch(`/api/tasks/${taskId}/messages`, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: updatedMessages }),
+      body: JSON.stringify({ content, from: "human" }),
     });
-    const patchJson = await patchRes.json();
-    if (patchJson.error) {
-      toast.error(patchJson.error);
+    const json = await res.json();
+    if (json.error) {
+      toast.error(json.error);
       return null;
     }
     toast.success("Message sent");
-    if (patchJson.data) {
-      optimisticUpdates.current.add(taskId);
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? patchJson.data : t)));
-    }
-    return patchJson.data;
+    return json.data;
   };
 
   return {

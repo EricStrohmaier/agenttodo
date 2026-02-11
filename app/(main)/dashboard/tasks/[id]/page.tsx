@@ -21,6 +21,8 @@ import {
   Paperclip,
   ChevronDown,
   MoreHorizontal,
+  CornerDownRight,
+  CheckCircle2,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -50,7 +52,7 @@ import {
 } from "@/lib/constants";
 import { ActivityLog } from "@/components/dashboard/activity-log";
 import { timeAgo } from "@/lib/time";
-import type { Task, TaskStatus, TaskIntent, TaskAttachment, TaskMessage } from "@/types/tasks";
+import type { Task, TaskStatus, TaskIntent, TaskAttachment, TaskMessage, TaskDependency } from "@/types/tasks";
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -58,6 +60,8 @@ export default function TaskDetailPage() {
   const taskId = params.id as string;
 
   const [task, setTask] = useState<Task | null>(null);
+  const [subtasks, setSubtasks] = useState<Task[]>([]);
+  const [parentTask, setParentTask] = useState<{ id: string; title: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Editable fields
@@ -65,7 +69,6 @@ export default function TaskDetailPage() {
   const [description, setDescription] = useState("");
   const [agent, setAgent] = useState("");
   const [project, setProject] = useState("");
-  const [projectContext, setProjectContext] = useState("");
   const [context, setContext] = useState("");
   const [blockers, setBlockers] = useState("");
   const [messageInput, setMessageInput] = useState("");
@@ -86,7 +89,18 @@ export default function TaskDetailPage() {
       const json = await res.json();
       if (json.data) {
         setTask(json.data);
+        setSubtasks(json.data.subtasks || []);
         populateFields(json.data);
+        // Fetch parent task title if this is a subtask
+        if (json.data.parent_task_id) {
+          const parentRes = await fetch(`/api/tasks/${json.data.parent_task_id}`);
+          const parentJson = await parentRes.json();
+          if (parentJson.data) {
+            setParentTask({ id: parentJson.data.id, title: parentJson.data.title });
+          }
+        } else {
+          setParentTask(null);
+        }
       } else {
         router.push("/dashboard");
       }
@@ -101,7 +115,6 @@ export default function TaskDetailPage() {
     setDescription(t.description || "");
     setAgent(t.assigned_agent || "");
     setProject(t.project || "");
-    setProjectContext(t.project_context || "");
     setContext(t.context ? JSON.stringify(t.context, null, 2) : "{}");
     setBlockers(t.blockers?.join("\n") || "");
     initialValues.current = {
@@ -109,7 +122,6 @@ export default function TaskDetailPage() {
       description: t.description || "",
       agent: t.assigned_agent || "",
       project: t.project || "",
-      projectContext: t.project_context || "",
       context: t.context ? JSON.stringify(t.context, null, 2) : "{}",
       blockers: t.blockers?.join("\n") || "",
     };
@@ -181,6 +193,9 @@ export default function TaskDetailPage() {
     }
     toast.success("Subtask created");
     setSubtaskTitle("");
+    if (json.data) {
+      setSubtasks((prev) => [...prev, json.data]);
+    }
   };
 
   const handleUpload = () => {
@@ -201,9 +216,25 @@ export default function TaskDetailPage() {
         return;
       }
       toast.success("File uploaded");
-      if (json.data?.task) setTask(json.data.task);
+      if (json.data?.attachment) {
+        setTask((prev) =>
+          prev ? { ...prev, attachments: [...(prev.attachments || []), json.data.attachment] } : prev
+        );
+      }
     };
     input.click();
+  };
+
+  const handleDeleteAttachment = async (attachmentId: string) => {
+    setTask((prev) =>
+      prev ? { ...prev, attachments: (prev.attachments || []).filter((a) => a.id !== attachmentId) } : prev
+    );
+    const res = await fetch(`/api/tasks/${taskId}/attachments/${attachmentId}`, { method: "DELETE" });
+    const json = await res.json();
+    if (json.error) {
+      toast.error(json.error);
+      fetchTask();
+    }
   };
 
   const handleSendMessage = async () => {
@@ -213,7 +244,10 @@ export default function TaskDetailPage() {
 
     // Optimistic
     const newMessage: TaskMessage = {
-      from: "human",
+      id: crypto.randomUUID(),
+      user_id: "",
+      task_id: taskId,
+      from_agent: "human",
       content,
       created_at: new Date().toISOString(),
     };
@@ -221,24 +255,15 @@ export default function TaskDetailPage() {
       prev ? { ...prev, messages: [...(prev.messages || []), newMessage] } : prev
     );
 
-    // Fetch current, append, save
-    const res = await fetch(`/api/tasks/${taskId}`);
-    const json = await res.json();
-    if (!json.data) return;
-    const currentMessages = json.data.messages || [];
-    const updatedMessages = [...currentMessages, newMessage];
-
-    const patchRes = await fetch(`/api/tasks/${taskId}`, {
-      method: "PATCH",
+    const res = await fetch(`/api/tasks/${taskId}/messages`, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: updatedMessages }),
+      body: JSON.stringify({ content, from: "human" }),
     });
-    const patchJson = await patchRes.json();
-    if (patchJson.error) {
-      toast.error(patchJson.error);
+    const json = await res.json();
+    if (json.error) {
+      toast.error(json.error);
       fetchTask();
-    } else if (patchJson.data) {
-      setTask(patchJson.data);
     }
   };
 
@@ -281,6 +306,20 @@ export default function TaskDetailPage() {
           <ArrowLeft className="w-4 h-4" />
           Tasks
         </Link>
+
+        {/* Parent task indicator */}
+        {parentTask && (
+          <div className="mb-4">
+            <Link
+              href={`/dashboard/tasks/${parentTask.id}`}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-md bg-muted/50 border"
+            >
+              <CornerDownRight className="w-3 h-3" />
+              <span>Subtask of</span>
+              <span className="font-medium text-foreground truncate max-w-[300px]">{parentTask.title}</span>
+            </Link>
+          </div>
+        )}
 
         {/* Title */}
         <div className="mb-6">
@@ -441,25 +480,6 @@ export default function TaskDetailPage() {
             />
           </div>
 
-          {/* Project Context */}
-          {(projectContext || project) && (
-            <div className="flex items-center gap-4 px-4 py-2.5">
-              <span className="text-sm text-muted-foreground w-32 shrink-0">Project Context</span>
-              <input
-                value={projectContext}
-                onChange={(e) => setProjectContext(e.target.value)}
-                onBlur={() => {
-                  if (projectContext !== initialValues.current.projectContext) {
-                    save({ project_context: projectContext || null });
-                    initialValues.current.projectContext = projectContext;
-                  }
-                }}
-                placeholder="Add context..."
-                className="text-sm bg-transparent border-none outline-none flex-1 placeholder:text-muted-foreground/50 hover:bg-accent/50 rounded px-2 py-0.5 -mx-2 transition-colors focus:bg-accent/50"
-              />
-            </div>
-          )}
-
           {/* Human Review */}
           <div className="flex items-center gap-4 px-4 py-2.5">
             <span className="text-sm text-muted-foreground w-32 shrink-0">Human Review</span>
@@ -470,23 +490,16 @@ export default function TaskDetailPage() {
             />
           </div>
 
-          {/* Human Input Needed */}
-          <div className="flex items-center gap-4 px-4 py-2.5">
-            <span className="text-sm text-muted-foreground w-32 shrink-0">Needs Input</span>
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={task.human_input_needed}
-                onCheckedChange={(v) => save({ human_input_needed: v })}
-                className="scale-90"
-              />
-              {task.human_input_needed && (
-                <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                  <AlertTriangle className="w-3 h-3" />
-                  Waiting for input
-                </span>
-              )}
+          {/* Human Input Needed (auto-managed via messages) */}
+          {task.human_input_needed && (
+            <div className="flex items-center gap-4 px-4 py-2.5">
+              <span className="text-sm text-muted-foreground w-32 shrink-0">Needs Input</span>
+              <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                <AlertTriangle className="w-3 h-3" />
+                Waiting for input
+              </span>
             </div>
-          </div>
+          )}
 
           {/* Confidence */}
           {task.confidence !== null && task.confidence !== undefined && (
@@ -496,6 +509,16 @@ export default function TaskDetailPage() {
                 <Progress value={task.confidence * 100} className="h-1.5 flex-1 max-w-[200px]" />
                 <span className="text-xs text-muted-foreground">{Math.round(task.confidence * 100)}%</span>
               </div>
+            </div>
+          )}
+
+          {/* Next Run (recurring tasks) */}
+          {task.next_run_at && (
+            <div className="flex items-center gap-4 px-4 py-2.5">
+              <span className="text-sm text-muted-foreground w-32 shrink-0">Next Run</span>
+              <span className="text-sm">
+                {new Date(task.next_run_at).toLocaleString()}
+              </span>
             </div>
           )}
         </div>
@@ -539,6 +562,39 @@ export default function TaskDetailPage() {
           </div>
         )}
 
+        {/* Dependencies */}
+        {task.dependencies && task.dependencies.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">
+              Dependencies
+              <span className="ml-1.5 text-xs font-normal">({task.dependencies.length})</span>
+            </h3>
+            <div className="space-y-1">
+              {task.dependencies.map((dep: TaskDependency) => (
+                <Link
+                  key={dep.id}
+                  href={`/dashboard/tasks/${dep.depends_on_task_id}`}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg border hover:bg-accent/50 transition-colors"
+                >
+                  {dep.depends_on?.status === "done" ? (
+                    <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                  )}
+                  <span className={`flex-1 text-sm truncate ${dep.depends_on?.status === "done" ? "line-through text-muted-foreground" : ""}`}>
+                    {dep.depends_on?.title || dep.depends_on_task_id}
+                  </span>
+                  {dep.depends_on?.status && (
+                    <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 shrink-0 ${STATUS_COLORS[dep.depends_on.status]}`}>
+                      {STATUS_LABELS[dep.depends_on.status]}
+                    </Badge>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Context JSON */}
         <div className="mb-8">
           <h3 className="text-sm font-medium text-muted-foreground mb-3">Context</h3>
@@ -576,7 +632,7 @@ export default function TaskDetailPage() {
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium text-muted-foreground">
               Attachments
-              {task.attachments?.length > 0 && (
+              {task.attachments && task.attachments.length > 0 && (
                 <span className="ml-1.5 text-xs font-normal">({task.attachments.length})</span>
               )}
             </h3>
@@ -584,15 +640,15 @@ export default function TaskDetailPage() {
               <Upload className="w-3 h-3 mr-1.5" /> Upload
             </Button>
           </div>
-          {task.attachments?.length > 0 ? (
+          {task.attachments && task.attachments.length > 0 ? (
             <div className="space-y-2">
               {/* Image grid */}
               {task.attachments.filter((a) => a.type.startsWith("image/")).length > 0 && (
                 <div className="grid grid-cols-4 gap-2">
                   {task.attachments
                     .filter((a) => a.type.startsWith("image/"))
-                    .map((a, i) => (
-                      <div key={i} className="relative group/att">
+                    .map((a) => (
+                      <div key={a.id} className="relative group/att">
                         <a href={a.url} target="_blank" rel="noopener noreferrer">
                           <img
                             src={a.url}
@@ -601,12 +657,7 @@ export default function TaskDetailPage() {
                           />
                         </a>
                         <button
-                          onClick={() => {
-                            const updated = task.attachments.filter(
-                              (_, idx) => idx !== task.attachments.indexOf(a)
-                            );
-                            save({ attachments: updated });
-                          }}
+                          onClick={() => handleDeleteAttachment(a.id)}
                           className="absolute top-1 right-1 bg-background/80 rounded-full p-0.5 opacity-0 group-hover/att:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
@@ -618,9 +669,9 @@ export default function TaskDetailPage() {
               {/* File list */}
               {task.attachments
                 .filter((a) => !a.type.startsWith("image/"))
-                .map((a, i) => (
+                .map((a) => (
                   <div
-                    key={i}
+                    key={a.id}
                     className="flex items-center gap-3 text-sm group/att px-3 py-2 rounded-lg border hover:bg-accent/50 transition-colors"
                   >
                     <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -636,13 +687,7 @@ export default function TaskDetailPage() {
                       {(a.size / 1024).toFixed(0)}KB
                     </span>
                     <button
-                      onClick={() => {
-                        const idx = task.attachments.findIndex(
-                          (x) => x.storage_path === a.storage_path
-                        );
-                        const updated = task.attachments.filter((_, j) => j !== idx);
-                        save({ attachments: updated });
-                      }}
+                      onClick={() => handleDeleteAttachment(a.id)}
                       className="opacity-0 group-hover/att:opacity-100 transition-opacity"
                     >
                       <X className="w-3 h-3" />
@@ -660,19 +705,19 @@ export default function TaskDetailPage() {
         {/* Messages */}
         <div className="mb-8">
           <h3 className="text-sm font-medium text-muted-foreground mb-3">Messages</h3>
-          {task.messages?.length > 0 && (
+          {task.messages && task.messages.length > 0 && (
             <div className="space-y-2 mb-3 max-h-80 overflow-y-auto">
-              {task.messages.map((msg, i) => (
+              {task.messages.map((msg) => (
                 <div
-                  key={i}
+                  key={msg.id}
                   className={`rounded-lg px-4 py-2.5 text-sm max-w-[80%] ${
-                    msg.from === "human"
+                    msg.from_agent === "human"
                       ? "ml-auto bg-primary text-primary-foreground"
                       : "bg-muted"
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium opacity-80">{msg.from}</span>
+                    <span className="text-xs font-medium opacity-80">{msg.from_agent}</span>
                     <span className="text-[10px] opacity-50">{timeAgo(msg.created_at)}</span>
                   </div>
                   <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -705,9 +750,37 @@ export default function TaskDetailPage() {
           </div>
         </div>
 
-        {/* Subtask */}
+        {/* Subtasks */}
         <div className="mb-8">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Subtasks</h3>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">
+            Subtasks
+            {subtasks.length > 0 && (
+              <span className="ml-1.5 text-xs font-normal">({subtasks.length})</span>
+            )}
+          </h3>
+          {subtasks.length > 0 && (
+            <div className="space-y-1 mb-3">
+              {subtasks.map((sub) => (
+                <Link
+                  key={sub.id}
+                  href={`/dashboard/tasks/${sub.id}`}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg border hover:bg-accent/50 transition-colors group"
+                >
+                  {sub.status === "done" ? (
+                    <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                  ) : (
+                    <Circle className="w-4 h-4 text-muted-foreground/40 shrink-0" strokeWidth={1.5} />
+                  )}
+                  <span className={`flex-1 text-sm truncate ${sub.status === "done" ? "line-through text-muted-foreground" : ""}`}>
+                    {sub.title}
+                  </span>
+                  <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 shrink-0 ${STATUS_COLORS[sub.status]}`}>
+                    {STATUS_LABELS[sub.status]}
+                  </Badge>
+                </Link>
+              ))}
+            </div>
+          )}
           <div className="flex gap-2">
             <input
               value={subtaskTitle}

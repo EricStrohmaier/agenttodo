@@ -107,10 +107,24 @@ export default function DashboardPage() {
     return Array.from(agents);
   }, [tasks]);
 
+  const [apiProjects, setApiProjects] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.data) {
+          setApiProjects(json.data.map((p: any) => p.name));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const uniqueProjects = useMemo(() => {
-    const projects = new Set(tasks.map((t) => t.project).filter(Boolean) as string[]);
-    return Array.from(projects);
-  }, [tasks]);
+    const fromTasks = tasks.map((t) => t.project).filter(Boolean) as string[];
+    const all = new Set([...apiProjects, ...fromTasks]);
+    return Array.from(all).sort();
+  }, [tasks, apiProjects]);
 
   const handleToggleDone = (task: Task) => {
     const newStatus = task.status === "done" ? "todo" : "done";
@@ -140,7 +154,7 @@ export default function DashboardPage() {
       {/* Welcome banner for logged-out users */}
       {showBanner && <WelcomeBanner onDismiss={dismissBanner} />}
 
-      <div className="flex flex-col flex-1 max-w-5xl mx-auto w-full">
+      <div className="flex flex-col flex-1 min-h-0 max-w-5xl mx-auto w-full">
       {/* Header */}
       <div className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-3 border-b">
         <h1 className="text-lg font-semibold pl-10 md:pl-0">Tasks</h1>

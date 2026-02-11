@@ -12,11 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ALL_STATUSES, ALL_INTENTS, STATUS_LABELS, INTENT_LABELS, INTENT_COLORS, PRIORITY_COLORS } from "@/lib/constants";
+import { ALL_STATUSES, ALL_INTENTS, STATUS_LABELS, INTENT_LABELS, INTENT_COLORS, PRIORITY_COLORS, HUMAN_INPUT_BADGE_COLOR, STATUS_COLORS } from "@/lib/constants";
 import { ActivityLog } from "./activity-log";
-import { HUMAN_INPUT_BADGE_COLOR } from "@/lib/constants";
-import { Circle, Trash2, GitBranch, Upload, X, Paperclip, Image as ImageIcon, FileText, Send } from "lucide-react";
-import type { Task, TaskStatus, TaskIntent, TaskAttachment, TaskMessage } from "@/types/tasks";
+import { Circle, Trash2, GitBranch, Upload, X, Paperclip, Image as ImageIcon, FileText, Send, CornerDownRight, CheckCircle2, ExternalLink, AlertTriangle, Clock } from "lucide-react";
+import Link from "next/link";
+import type { Task, TaskStatus, TaskIntent, TaskAttachment, TaskMessage, TaskDependency } from "@/types/tasks";
 
 interface TaskDetailProps {
   task: Task | null;
@@ -40,12 +40,12 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
   const [humanReview, setHumanReview] = useState(true);
   const [blockers, setBlockers] = useState("");
   const [project, setProject] = useState("");
-  const [projectContext, setProjectContext] = useState("");
-  const [humanInputNeeded, setHumanInputNeeded] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [subtaskTitle, setSubtaskTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [subtasks, setSubtasks] = useState<Task[]>([]);
+  const [parentTask, setParentTask] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     if (task) {
@@ -59,9 +59,28 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
       setHumanReview(task.requires_human_review);
       setBlockers(task.blockers?.join("\n") || "");
       setProject(task.project || "");
-      setProjectContext(task.project_context || "");
-      setHumanInputNeeded(task.human_input_needed ?? false);
       setMessageInput("");
+
+      // Fetch subtasks and parent info
+      fetch(`/api/tasks/${task.id}`)
+        .then((r) => r.json())
+        .then((json) => {
+          if (json.data?.subtasks) setSubtasks(json.data.subtasks);
+          else setSubtasks([]);
+        })
+        .catch(() => setSubtasks([]));
+
+      if (task.parent_task_id) {
+        fetch(`/api/tasks/${task.parent_task_id}`)
+          .then((r) => r.json())
+          .then((json) => {
+            if (json.data) setParentTask({ id: json.data.id, title: json.data.title });
+            else setParentTask(null);
+          })
+          .catch(() => setParentTask(null));
+      } else {
+        setParentTask(null);
+      }
     }
   }, [task]);
 
@@ -80,14 +99,28 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
 
   const handleSpawnSubtask = async () => {
     if (!subtaskTitle.trim()) return;
-    await onSpawnSubtask(task.id, subtaskTitle.trim());
+    const result = await onSpawnSubtask(task.id, subtaskTitle.trim());
     setSubtaskTitle("");
+    if (result) {
+      setSubtasks((prev) => [...prev, result]);
+    }
   };
 
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader className="pb-4">
+          {parentTask && (
+            <Link
+              href={`/dashboard/tasks/${parentTask.id}`}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-1 w-fit"
+            >
+              <CornerDownRight className="w-3 h-3" />
+              <span>Subtask of</span>
+              <span className="font-medium text-foreground truncate max-w-[200px]">{parentTask.title}</span>
+              <ExternalLink className="w-2.5 h-2.5" />
+            </Link>
+          )}
           {editingTitle ? (
             <Input
               value={title}
@@ -197,27 +230,15 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
           </div>
 
           {/* Project */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Project</Label>
-              <Input
-                value={project}
-                onChange={(e) => setProject(e.target.value)}
-                onBlur={() => save({ project: project || null })}
-                placeholder="Project name..."
-                className="h-8 text-sm"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Project Context</Label>
-              <Input
-                value={projectContext}
-                onChange={(e) => setProjectContext(e.target.value)}
-                onBlur={() => save({ project_context: projectContext || null })}
-                placeholder="Context..."
-                className="h-8 text-sm"
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Project</Label>
+            <Input
+              value={project}
+              onChange={(e) => setProject(e.target.value)}
+              onBlur={() => save({ project: project || null })}
+              placeholder="Project name..."
+              className="h-8 text-sm"
+            />
           </div>
 
           {/* Description */}
@@ -280,23 +301,64 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
             />
           </div>
 
+          {/* Dependencies */}
+          {task.dependencies && task.dependencies.length > 0 && (
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">
+                Dependencies
+                <span className="ml-1 font-normal">({task.dependencies.length})</span>
+              </Label>
+              <div className="space-y-1">
+                {task.dependencies.map((dep: TaskDependency) => (
+                  <Link
+                    key={dep.id}
+                    href={`/dashboard/tasks/${dep.depends_on_task_id}`}
+                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-md border hover:bg-accent/50 transition-colors text-xs"
+                  >
+                    {dep.depends_on?.status === "done" ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                    ) : (
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    )}
+                    <span className={`flex-1 truncate ${dep.depends_on?.status === "done" ? "line-through text-muted-foreground" : ""}`}>
+                      {dep.depends_on?.title || dep.depends_on_task_id}
+                    </span>
+                    {dep.depends_on?.status && (
+                      <Badge variant="secondary" className={`text-[9px] px-1 py-0 shrink-0 ${STATUS_COLORS[dep.depends_on.status]}`}>
+                        {STATUS_LABELS[dep.depends_on.status]}
+                      </Badge>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Next Run (recurring tasks) */}
+          {task.next_run_at && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Clock className="w-3.5 h-3.5" />
+              <span>Next run: {new Date(task.next_run_at).toLocaleString()}</span>
+            </div>
+          )}
+
           {/* Attachments */}
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Attachments</Label>
-            {task.attachments?.length > 0 && (
+            {task.attachments && task.attachments.length > 0 && (
               <div className="space-y-2">
                 {/* Image thumbnails */}
                 {task.attachments.filter((a: TaskAttachment) => a.type.startsWith("image/")).length > 0 && (
                   <div className="grid grid-cols-3 gap-2">
-                    {task.attachments.filter((a: TaskAttachment) => a.type.startsWith("image/")).map((a: TaskAttachment, i: number) => (
-                      <div key={i} className="relative group/att">
+                    {task.attachments.filter((a: TaskAttachment) => a.type.startsWith("image/")).map((a: TaskAttachment) => (
+                      <div key={a.id} className="relative group/att">
                         <a href={a.url} target="_blank" rel="noopener noreferrer">
                           <img src={a.url} alt={a.name} className="w-full h-20 object-cover rounded-md border" />
                         </a>
                         <button
-                          onClick={() => {
-                            const updated = task.attachments.filter((_: TaskAttachment, idx: number) => idx !== task.attachments.indexOf(a));
-                            save({ attachments: updated });
+                          onClick={async () => {
+                            await fetch(`/api/tasks/${task.id}/attachments/${a.id}`, { method: "DELETE" });
+                            onUpdate(task.id, {});
                           }}
                           className="absolute top-1 right-1 bg-background/80 rounded-full p-0.5 opacity-0 group-hover/att:opacity-100 transition-opacity"
                         >
@@ -307,18 +369,17 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
                   </div>
                 )}
                 {/* Non-image files */}
-                {task.attachments.filter((a: TaskAttachment) => !a.type.startsWith("image/")).map((a: TaskAttachment, i: number) => (
-                  <div key={i} className="flex items-center gap-2 text-xs group/att">
+                {task.attachments.filter((a: TaskAttachment) => !a.type.startsWith("image/")).map((a: TaskAttachment) => (
+                  <div key={a.id} className="flex items-center gap-2 text-xs group/att">
                     <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                     <a href={a.url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate hover:underline">
                       {a.name}
                     </a>
                     <span className="text-muted-foreground shrink-0">{(a.size / 1024).toFixed(0)}KB</span>
                     <button
-                      onClick={() => {
-                        const idx = task.attachments.findIndex((x: TaskAttachment) => x.storage_path === a.storage_path);
-                        const updated = task.attachments.filter((_: TaskAttachment, j: number) => j !== idx);
-                        save({ attachments: updated });
+                      onClick={async () => {
+                        await fetch(`/api/tasks/${task.id}/attachments/${a.id}`, { method: "DELETE" });
+                        onUpdate(task.id, {});
                       }}
                       className="opacity-0 group-hover/att:opacity-100 transition-opacity"
                     >
@@ -348,40 +409,28 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
             )}
           </div>
 
-          {/* Human Input Needed */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs text-muted-foreground">Human Input Needed</Label>
-              <Switch
-                checked={humanInputNeeded}
-                onCheckedChange={(v) => {
-                  setHumanInputNeeded(v);
-                  save({ human_input_needed: v });
-                }}
-              />
+          {/* Human Input Needed (auto-managed via messages) */}
+          {task.human_input_needed && (
+            <div className="rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-2 text-xs text-amber-700 dark:text-amber-400">
+              This task is waiting for human input.
             </div>
-            {humanInputNeeded && (
-              <div className="rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-2 text-xs text-amber-700 dark:text-amber-400">
-                This task is waiting for human input.
-              </div>
-            )}
-          </div>
+          )}
 
           {/* Messages / Feedback Thread */}
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Messages</Label>
-            {task.messages?.length > 0 && (
+            {task.messages && task.messages.length > 0 && (
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {task.messages.map((msg: TaskMessage, i: number) => (
+                {task.messages.map((msg: TaskMessage) => (
                   <div
-                    key={i}
+                    key={msg.id}
                     className={`rounded-lg px-3 py-2 text-xs max-w-[85%] ${
-                      msg.from === "human"
+                      msg.from_agent === "human"
                         ? "ml-auto bg-primary text-primary-foreground"
                         : "bg-muted"
                     }`}
                   >
-                    <div className="font-medium mb-0.5">{msg.from}</div>
+                    <div className="font-medium mb-0.5">{msg.from_agent}</div>
                     <div className="whitespace-pre-wrap">{msg.content}</div>
                   </div>
                 ))}
@@ -441,15 +490,43 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
 
           <Separator />
 
-          {/* Spawn subtask */}
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Spawn Subtask</Label>
+          {/* Subtasks */}
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              Subtasks
+              {subtasks.length > 0 && (
+                <span className="ml-1 font-normal">({subtasks.length})</span>
+              )}
+            </Label>
+            {subtasks.length > 0 && (
+              <div className="space-y-1">
+                {subtasks.map((sub) => (
+                  <Link
+                    key={sub.id}
+                    href={`/dashboard/tasks/${sub.id}`}
+                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-md border hover:bg-accent/50 transition-colors text-xs"
+                  >
+                    {sub.status === "done" ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                    ) : (
+                      <Circle className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" strokeWidth={1.5} />
+                    )}
+                    <span className={`flex-1 truncate ${sub.status === "done" ? "line-through text-muted-foreground" : ""}`}>
+                      {sub.title}
+                    </span>
+                    <Badge variant="secondary" className={`text-[9px] px-1 py-0 shrink-0 ${STATUS_COLORS[sub.status]}`}>
+                      {STATUS_LABELS[sub.status]}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            )}
             <div className="flex gap-2">
               <Input
                 value={subtaskTitle}
                 onChange={(e) => setSubtaskTitle(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSpawnSubtask()}
-                placeholder="Subtask title..."
+                placeholder="Add subtask..."
                 className="h-8 text-sm flex-1"
               />
               <Button size="sm" variant="outline" onClick={handleSpawnSubtask} className="h-8">

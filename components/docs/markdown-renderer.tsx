@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeBlock } from "./code-block";
@@ -91,6 +92,13 @@ export function MarkdownRenderer({ content }: { content: string }) {
     ),
     hr: () => <hr className="my-8 border-border" />,
   };
+
+  // Scroll to hash anchor after markdown renders
+  useEffect(() => {
+    if (window.location.hash) {
+      document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
+    }
+  }, [content]);
 
   return (
     <div className="max-w-3xl leading-[1.7]">

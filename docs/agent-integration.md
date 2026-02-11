@@ -18,11 +18,17 @@ Every agent follows the same workflow:
 BASE_URL="https://your-app.vercel.app"
 API_KEY="YOUR_API_KEY"
 
-# 1. Find work
+# 1. Claim next available task (recommended — finds + claims atomically)
+curl -X POST "$BASE_URL/api/tasks/next" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "intents": ["research"] }'
+
+# Or: find work manually, then claim a specific task
 curl -s "$BASE_URL/api/tasks?status=todo&intent=research" \
   -H "Authorization: Bearer $API_KEY" | jq '.data[0]'
 
-# 2. Claim the task
+# 2. Claim a specific task (if not using /api/tasks/next)
 curl -X POST "$BASE_URL/api/tasks/TASK_ID/start" \
   -H "Authorization: Bearer $API_KEY"
 
@@ -76,7 +82,7 @@ curl -X POST https://your-app.vercel.app/api/tasks/bulk \
   }'
 ```
 
-Each worker agent queries for tasks matching its intent and priority, claims them, and works independently. The dashboard shows real-time progress across all agents.
+Each worker agent calls `POST /api/tasks/next` with its intents to claim work automatically. No risk of two agents grabbing the same task. The dashboard shows real-time progress across all agents.
 
 ## Decomposing Tasks
 

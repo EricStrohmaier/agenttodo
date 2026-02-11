@@ -12,6 +12,7 @@ const DOC_ORDER = [
   { slug: "self-hosting", href: "/docs/self-hosting", title: "Self-Hosting" },
   { slug: "api", href: "/docs/api", title: "API Reference" },
   { slug: "concepts", href: "/docs/concepts", title: "Core Concepts" },
+  { slug: "dashboard", href: "/docs/dashboard", title: "Dashboard Guide" },
   { slug: "agents", href: "/docs/agents", title: "Agent Integration" },
   { slug: "use-cases", href: "/docs/use-cases", title: "Use Cases" },
   { slug: "best-practices", href: "/docs/best-practices", title: "Best Practices" },

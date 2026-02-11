@@ -3,6 +3,7 @@ import { authenticateRequest, getSupabaseClient } from "@/lib/agent-auth";
 import { withCors } from "@/app/api/cors-middleware";
 import { success, error } from "@/lib/api-response";
 import type { CreateTaskInput, TaskIntent, TaskStatus } from "@/types/tasks";
+import { computeNextRun } from "@/lib/recurrence";
 
 const VALID_INTENTS: TaskIntent[] = ["research", "build", "write", "think", "admin", "ops"];
 const VALID_STATUSES: TaskStatus[] = ["todo", "in_progress", "blocked", "review", "done"];
@@ -15,7 +16,13 @@ async function handler(req: NextRequest) {
 
   if (req.method === "GET") {
     const params = req.nextUrl.searchParams;
-    let query = db.from("tasks").select("*").eq("user_id", auth.data.userId);
+
+    // Sparse field selection: default returns lightweight fields, ?fields=full returns everything
+    const fieldsParam = params.get("fields");
+    const SUMMARY_FIELDS = "id,title,status,intent,priority,project,assigned_agent,human_input_needed,parent_task_id,created_by,updated_at,created_at";
+    const selectFields = fieldsParam === "full" ? "*" : SUMMARY_FIELDS;
+
+    let query = db.from("tasks").select(selectFields).eq("user_id", auth.data.userId);
 
     const status = params.get("status");
     if (status && VALID_STATUSES.includes(status as TaskStatus)) query = query.eq("status", status);
@@ -59,6 +66,14 @@ async function handler(req: NextRequest) {
     if (body.intent && !VALID_INTENTS.includes(body.intent)) return error("Invalid intent");
     if (body.priority !== undefined && (body.priority < 1 || body.priority > 5)) return error("Priority must be 1-5");
 
+    // Validate metadata is flat key-value (no nested objects/arrays)
+    if (body.metadata) {
+      const vals = Object.values(body.metadata);
+      if (vals.some((v: any) => v !== null && typeof v === "object")) {
+        return error("metadata values must be flat (string, number, boolean, or null). Use context for nested data.");
+      }
+    }
+
     const insert = {
       title: body.title.trim(),
       description: body.description || "",
@@ -70,13 +85,24 @@ async function handler(req: NextRequest) {
       created_by: body.created_by || auth.data.agent,
       requires_human_review: body.requires_human_review ?? true,
       project: body.project || null,
-      project_context: body.project_context || null,
       human_input_needed: body.human_input_needed ?? false,
+      metadata: body.metadata || {},
+      recurrence: body.recurrence || null,
+      recurrence_source_id: body.recurrence_source_id || null,
+      next_run_at: body.recurrence ? computeNextRun(body.recurrence)?.toISOString() || null : null,
       user_id: auth.data.userId,
     };
 
     const { data: task, error: dbErr } = await db.from("tasks").insert(insert).select().single();
     if (dbErr) return error(dbErr.message, 500);
+
+    // Auto-create project if it doesn't exist
+    if (insert.project) {
+      await db.from("projects").upsert(
+        { user_id: auth.data.userId, name: insert.project },
+        { onConflict: "user_id,name", ignoreDuplicates: true }
+      );
+    }
 
     // Log creation
     await db.from("activity_log").insert({

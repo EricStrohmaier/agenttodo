@@ -6,6 +6,7 @@ const DOCS = [
   { slug: "self-hosting", title: "Self-Hosting", url: "/api/docs/self-hosting" },
   { slug: "api-reference", title: "API Reference", url: "/api/docs/api-reference" },
   { slug: "concepts", title: "Core Concepts", url: "/api/docs/concepts" },
+  { slug: "dashboard", title: "Dashboard Guide", url: "/api/docs/dashboard" },
   { slug: "agent-integration", title: "Agent Integration", url: "/api/docs/agent-integration" },
   { slug: "use-cases", title: "Use Cases", url: "/api/docs/use-cases" },
   { slug: "best-practices", title: "Best Practices", url: "/api/docs/best-practices" },
