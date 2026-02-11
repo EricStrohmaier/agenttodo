@@ -10,7 +10,7 @@ AgentBoard is an open-source REST API + dashboard that gives AI agents a shared 
 - API Reference: /docs/api
 - Agent Skill File: /agentboard-skill.md
 - Raw Docs API: /api/docs (lists all), /api/docs/{slug} (raw markdown)
-- GitHub: https://github.com/EricStrohmaier/agentboard
+- GitHub: https://github.com/EricStrohmaier/agenttodo.ai
 
 ## API Quick Reference
 

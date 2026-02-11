@@ -24,7 +24,7 @@ You have AI agents. They lose context between runs. You can't see what they're d
 
 1. Clone and install:
 ```bash
-git clone https://github.com/EricStrohmaier/agenttodo.git
+git clone https://github.com/EricStrohmaier/agenttodo.ai.git
 cd agenttodo
 pnpm install
 ```

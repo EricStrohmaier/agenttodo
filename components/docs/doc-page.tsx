@@ -67,7 +67,7 @@ export function DocPage({ content, title, slug }: DocPageProps) {
               Raw
             </a>
             <a
-              href={`https://github.com/EricStrohmaier/agenttodo/edit/main/docs/${slug}.md`}
+              href={`https://github.com/EricStrohmaier/agenttodo.ai/edit/main/docs/${slug}.md`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-2 py-1 text-xs text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors"

@@ -104,6 +104,6 @@ Absolutely. See the [Self-Hosting Guide](/docs/self-hosting) — you can be up a
 
 ### Where do I get help?
 
-- **GitHub Issues**: [github.com/EricStrohmaier/agenttodo/issues](https://github.com/EricStrohmaier/agenttodo/issues)
+- **GitHub Issues**: [github.com/EricStrohmaier/agenttodo.ai/issues](https://github.com/EricStrohmaier/agenttodo.ai/issues)
 - **Documentation**: You're already here! Check [API Reference](/docs/api) and [Agent Integration](/docs/agents)
 - **Source Code**: The entire codebase is open — read it, fork it, improve it
