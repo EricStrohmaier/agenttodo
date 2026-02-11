@@ -14,942 +14,507 @@ export type Database = {
   };
   public: {
     Tables: {
-      book_spreads: {
+      activity_log: {
         Row: {
-          book_id: string;
-          created_at: string | null;
-          error_message: string | null;
-          generation_attempts: number | null;
-          generation_completed_at: string | null;
-          generation_started_at: string | null;
+          action: Database["public"]["Enums"]["log_action"];
+          agent: string;
+          created_at: string;
+          details: Json | null;
           id: string;
-          image_prompt: string | null;
-          image_storage_path: string | null;
-          image_url: string | null;
-          is_active: boolean;
-          layout: Json | null;
-          layout_template_id: string | null;
-          layout_type: string | null;
-          left_text: string | null;
-          raw_image_storage_path: string | null;
-          raw_image_url: string | null;
-          right_text: string | null;
-          scene_description: string | null;
-          spread_index: number;
-          spread_type: string | null;
-          status: string | null;
-          updated_at: string | null;
-          version: number;
-        };
-        Insert: {
-          book_id: string;
-          created_at?: string | null;
-          error_message?: string | null;
-          generation_attempts?: number | null;
-          generation_completed_at?: string | null;
-          generation_started_at?: string | null;
-          id?: string;
-          image_prompt?: string | null;
-          image_storage_path?: string | null;
-          image_url?: string | null;
-          is_active?: boolean;
-          layout?: Json | null;
-          layout_template_id?: string | null;
-          layout_type?: string | null;
-          left_text?: string | null;
-          raw_image_storage_path?: string | null;
-          raw_image_url?: string | null;
-          right_text?: string | null;
-          scene_description?: string | null;
-          spread_index: number;
-          spread_type?: string | null;
-          status?: string | null;
-          updated_at?: string | null;
-          version?: number;
-        };
-        Update: {
-          book_id?: string;
-          created_at?: string | null;
-          error_message?: string | null;
-          generation_attempts?: number | null;
-          generation_completed_at?: string | null;
-          generation_started_at?: string | null;
-          id?: string;
-          image_prompt?: string | null;
-          image_storage_path?: string | null;
-          image_url?: string | null;
-          is_active?: boolean;
-          layout?: Json | null;
-          layout_template_id?: string | null;
-          layout_type?: string | null;
-          left_text?: string | null;
-          raw_image_storage_path?: string | null;
-          raw_image_url?: string | null;
-          right_text?: string | null;
-          scene_description?: string | null;
-          spread_index?: number;
-          spread_type?: string | null;
-          status?: string | null;
-          updated_at?: string | null;
-          version?: number;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "book_spreads_book_id_fkey";
-            columns: ["book_id"];
-            isOneToOne: false;
-            referencedRelation: "books";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      books: {
-        Row: {
-          art_style: string;
-          chat_session_id: string | null;
-          child_data: Json;
-          child_profile_id: string | null;
-          completed_spreads: number | null;
-          cover_image_storage_path: string | null;
-          cover_image_url: string | null;
-          created_at: string | null;
-          deleted_at: string | null;
-          error_count: number | null;
-          format_id: string | null;
-          generation_completed_at: string | null;
-          generation_started_at: string | null;
-          id: string;
-          last_error: string | null;
-          orientation: string | null;
-          pdf_generated_at: string | null;
-          pdf_storage_path: string | null;
-          pdf_url: string | null;
-          status: string | null;
-          story_concept: Json | null;
-          style_preview_storage_path: string | null;
-          style_preview_url: string | null;
-          subtitle: string | null;
-          target_age_group: string | null;
-          theme: string | null;
-          title: string;
-          total_spreads: number | null;
-          updated_at: string | null;
+          task_id: string;
           user_id: string;
         };
         Insert: {
-          art_style: string;
-          chat_session_id?: string | null;
-          child_data: Json;
-          child_profile_id?: string | null;
-          completed_spreads?: number | null;
-          cover_image_storage_path?: string | null;
-          cover_image_url?: string | null;
-          created_at?: string | null;
-          deleted_at?: string | null;
-          error_count?: number | null;
-          format_id?: string | null;
-          generation_completed_at?: string | null;
-          generation_started_at?: string | null;
+          action: Database["public"]["Enums"]["log_action"];
+          agent: string;
+          created_at?: string;
+          details?: Json | null;
           id?: string;
-          last_error?: string | null;
-          orientation?: string | null;
-          pdf_generated_at?: string | null;
-          pdf_storage_path?: string | null;
-          pdf_url?: string | null;
-          status?: string | null;
-          story_concept?: Json | null;
-          style_preview_storage_path?: string | null;
-          style_preview_url?: string | null;
-          subtitle?: string | null;
-          target_age_group?: string | null;
-          theme?: string | null;
-          title: string;
-          total_spreads?: number | null;
-          updated_at?: string | null;
+          task_id: string;
           user_id: string;
         };
         Update: {
-          art_style?: string;
-          chat_session_id?: string | null;
-          child_data?: Json;
-          child_profile_id?: string | null;
-          completed_spreads?: number | null;
-          cover_image_storage_path?: string | null;
-          cover_image_url?: string | null;
-          created_at?: string | null;
-          deleted_at?: string | null;
-          error_count?: number | null;
-          format_id?: string | null;
-          generation_completed_at?: string | null;
-          generation_started_at?: string | null;
+          action?: Database["public"]["Enums"]["log_action"];
+          agent?: string;
+          created_at?: string;
+          details?: Json | null;
           id?: string;
-          last_error?: string | null;
-          orientation?: string | null;
-          pdf_generated_at?: string | null;
-          pdf_storage_path?: string | null;
-          pdf_url?: string | null;
-          status?: string | null;
-          story_concept?: Json | null;
-          style_preview_storage_path?: string | null;
-          style_preview_url?: string | null;
-          subtitle?: string | null;
-          target_age_group?: string | null;
-          theme?: string | null;
-          title?: string;
-          total_spreads?: number | null;
-          updated_at?: string | null;
+          task_id?: string;
           user_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "books_chat_session_id_fkey";
-            columns: ["chat_session_id"];
-            isOneToOne: true;
-            referencedRelation: "chat_sessions";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "books_child_profile_id_fkey";
-            columns: ["child_profile_id"];
+            foreignKeyName: "activity_log_task_id_fkey";
+            columns: ["task_id"];
             isOneToOne: false;
-            referencedRelation: "child_profiles";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "books_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "tasks";
             referencedColumns: ["id"];
           },
         ];
       };
-      chat_messages: {
+      agent_feedback: {
         Row: {
-          chat_session_id: string;
-          content: string;
+          agent_name: string;
           created_at: string | null;
           id: string;
-          role: string;
-          sequence_num: number;
-          tool_invocations: Json | null;
-        };
-        Insert: {
-          chat_session_id: string;
-          content: string;
-          created_at?: string | null;
-          id?: string;
-          role: string;
-          sequence_num: number;
-          tool_invocations?: Json | null;
-        };
-        Update: {
-          chat_session_id?: string;
-          content?: string;
-          created_at?: string | null;
-          id?: string;
-          role?: string;
-          sequence_num?: number;
-          tool_invocations?: Json | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "chat_messages_chat_session_id_fkey";
-            columns: ["chat_session_id"];
-            isOneToOne: false;
-            referencedRelation: "chat_sessions";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      chat_sessions: {
-        Row: {
-          book_id: string | null;
-          character_data: Json | null;
-          created_at: string | null;
-          current_step: string;
-          id: string;
-          story_preferences: Json | null;
-          suggestions: Json | null;
-          updated_at: string | null;
+          message: string;
           user_id: string;
         };
         Insert: {
-          book_id?: string | null;
-          character_data?: Json | null;
+          agent_name: string;
           created_at?: string | null;
-          current_step?: string;
           id?: string;
-          story_preferences?: Json | null;
-          suggestions?: Json | null;
-          updated_at?: string | null;
+          message: string;
           user_id: string;
         };
         Update: {
-          book_id?: string | null;
-          character_data?: Json | null;
+          agent_name?: string;
           created_at?: string | null;
-          current_step?: string;
           id?: string;
-          story_preferences?: Json | null;
-          suggestions?: Json | null;
-          updated_at?: string | null;
+          message?: string;
           user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "chat_sessions_book_id_fkey";
-            columns: ["book_id"];
-            isOneToOne: false;
-            referencedRelation: "books";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      child_profiles: {
-        Row: {
-          age: string | null;
-          appearance: Json | null;
-          character_description: string | null;
-          chat_session_id: string | null;
-          created_at: string | null;
-          deleted_at: string | null;
-          gender: string | null;
-          id: string;
-          is_default: boolean | null;
-          name: string;
-          photo_analysis: Json | null;
-          photo_paths: string[] | null;
-          photo_storage_path: string | null;
-          photo_url: string | null;
-          updated_at: string | null;
-          user_id: string;
-        };
-        Insert: {
-          age?: string | null;
-          appearance?: Json | null;
-          character_description?: string | null;
-          chat_session_id?: string | null;
-          created_at?: string | null;
-          deleted_at?: string | null;
-          gender?: string | null;
-          id?: string;
-          is_default?: boolean | null;
-          name: string;
-          photo_analysis?: Json | null;
-          photo_paths?: string[] | null;
-          photo_storage_path?: string | null;
-          photo_url?: string | null;
-          updated_at?: string | null;
-          user_id: string;
-        };
-        Update: {
-          age?: string | null;
-          appearance?: Json | null;
-          character_description?: string | null;
-          chat_session_id?: string | null;
-          created_at?: string | null;
-          deleted_at?: string | null;
-          gender?: string | null;
-          id?: string;
-          is_default?: boolean | null;
-          name?: string;
-          photo_analysis?: Json | null;
-          photo_paths?: string[] | null;
-          photo_storage_path?: string | null;
-          photo_url?: string | null;
-          updated_at?: string | null;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "child_profiles_chat_session_id_fkey";
-            columns: ["chat_session_id"];
-            isOneToOne: false;
-            referencedRelation: "chat_sessions";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "child_profiles_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      credit_transactions: {
-        Row: {
-          amount: number;
-          balance_after: number;
-          book_id: string | null;
-          created_at: string | null;
-          description: string | null;
-          id: string;
-          stripe_payment_intent_id: string | null;
-          stripe_session_id: string | null;
-          type: string;
-          user_id: string;
-        };
-        Insert: {
-          amount: number;
-          balance_after: number;
-          book_id?: string | null;
-          created_at?: string | null;
-          description?: string | null;
-          id?: string;
-          stripe_payment_intent_id?: string | null;
-          stripe_session_id?: string | null;
-          type: string;
-          user_id: string;
-        };
-        Update: {
-          amount?: number;
-          balance_after?: number;
-          book_id?: string | null;
-          created_at?: string | null;
-          description?: string | null;
-          id?: string;
-          stripe_payment_intent_id?: string | null;
-          stripe_session_id?: string | null;
-          type?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "credit_transactions_book_id_fkey";
-            columns: ["book_id"];
-            isOneToOne: false;
-            referencedRelation: "books";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "credit_transactions_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      feedback: {
-        Row: {
-          book_id: string | null;
-          contact_email: string | null;
-          created_at: string | null;
-          id: string;
-          message: string | null;
-          rating: number | null;
-          status: string | null;
-          type: string | null;
-          user_id: string | null;
-        };
-        Insert: {
-          book_id?: string | null;
-          contact_email?: string | null;
-          created_at?: string | null;
-          id?: string;
-          message?: string | null;
-          rating?: number | null;
-          status?: string | null;
-          type?: string | null;
-          user_id?: string | null;
-        };
-        Update: {
-          book_id?: string | null;
-          contact_email?: string | null;
-          created_at?: string | null;
-          id?: string;
-          message?: string | null;
-          rating?: number | null;
-          status?: string | null;
-          type?: string | null;
-          user_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "feedback_book_id_fkey";
-            columns: ["book_id"];
-            isOneToOne: false;
-            referencedRelation: "books";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "feedback_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      generation_events: {
-        Row: {
-          art_style: string | null;
-          book_id: string | null;
-          book_spread_id: string | null;
-          created_at: string | null;
-          duration_ms: number | null;
-          error_code: string | null;
-          error_message: string | null;
-          event_type: string;
-          id: string;
-          model_used: string | null;
-          request_data: Json | null;
-          response_data: Json | null;
-          spread_index: number | null;
-          success: boolean;
-          user_id: string | null;
-        };
-        Insert: {
-          art_style?: string | null;
-          book_id?: string | null;
-          book_spread_id?: string | null;
-          created_at?: string | null;
-          duration_ms?: number | null;
-          error_code?: string | null;
-          error_message?: string | null;
-          event_type: string;
-          id?: string;
-          model_used?: string | null;
-          request_data?: Json | null;
-          response_data?: Json | null;
-          spread_index?: number | null;
-          success: boolean;
-          user_id?: string | null;
-        };
-        Update: {
-          art_style?: string | null;
-          book_id?: string | null;
-          book_spread_id?: string | null;
-          created_at?: string | null;
-          duration_ms?: number | null;
-          error_code?: string | null;
-          error_message?: string | null;
-          event_type?: string;
-          id?: string;
-          model_used?: string | null;
-          request_data?: Json | null;
-          response_data?: Json | null;
-          spread_index?: number | null;
-          success?: boolean;
-          user_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "generation_events_book_id_fkey";
-            columns: ["book_id"];
-            isOneToOne: false;
-            referencedRelation: "books";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "generation_events_book_spread_id_fkey";
-            columns: ["book_spread_id"];
-            isOneToOne: false;
-            referencedRelation: "book_spreads";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "generation_events_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      story_concepts: {
-        Row: {
-          book_id: string | null;
-          chat_session_id: string;
-          concept_index: number | null;
-          cover_image_storage_path: string | null;
-          cover_image_url: string | null;
-          cover_prompt: string | null;
-          created_at: string | null;
-          id: string;
-          selected: boolean | null;
-          story_data: Json | null;
-          synopsis: string;
-          theme: string | null;
-          title: string;
-          user_id: string;
-        };
-        Insert: {
-          book_id?: string | null;
-          chat_session_id: string;
-          concept_index?: number | null;
-          cover_image_storage_path?: string | null;
-          cover_image_url?: string | null;
-          cover_prompt?: string | null;
-          created_at?: string | null;
-          id?: string;
-          selected?: boolean | null;
-          story_data?: Json | null;
-          synopsis: string;
-          theme?: string | null;
-          title: string;
-          user_id: string;
-        };
-        Update: {
-          book_id?: string | null;
-          chat_session_id?: string;
-          concept_index?: number | null;
-          cover_image_storage_path?: string | null;
-          cover_image_url?: string | null;
-          cover_prompt?: string | null;
-          created_at?: string | null;
-          id?: string;
-          selected?: boolean | null;
-          story_data?: Json | null;
-          synopsis?: string;
-          theme?: string | null;
-          title?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "story_concepts_book_id_fkey";
-            columns: ["book_id"];
-            isOneToOne: false;
-            referencedRelation: "books";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "story_concepts_chat_session_id_fkey";
-            columns: ["chat_session_id"];
-            isOneToOne: false;
-            referencedRelation: "chat_sessions";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "story_concepts_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      style_previews: {
-        Row: {
-          character_description: string | null;
-          chat_session_id: string;
-          created_at: string | null;
-          id: string;
-          image_storage_path: string | null;
-          image_url: string;
-          prompt_used: string | null;
-          selected: boolean | null;
-          style_id: string;
-          style_name: string;
-          user_id: string;
-        };
-        Insert: {
-          character_description?: string | null;
-          chat_session_id: string;
-          created_at?: string | null;
-          id?: string;
-          image_storage_path?: string | null;
-          image_url: string;
-          prompt_used?: string | null;
-          selected?: boolean | null;
-          style_id: string;
-          style_name: string;
-          user_id: string;
-        };
-        Update: {
-          character_description?: string | null;
-          chat_session_id?: string;
-          created_at?: string | null;
-          id?: string;
-          image_storage_path?: string | null;
-          image_url?: string;
-          prompt_used?: string | null;
-          selected?: boolean | null;
-          style_id?: string;
-          style_name?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "style_previews_chat_session_id_fkey";
-            columns: ["chat_session_id"];
-            isOneToOne: false;
-            referencedRelation: "chat_sessions";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "style_previews_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      users: {
-        Row: {
-          account_status: string | null;
-          created_at: string | null;
-          email: string;
-          first_name: string | null;
-          id: string;
-          is_early_launch_member: boolean | null;
-          last_name: string | null;
-          onboarding_completed: boolean | null;
-          profile_photo_url: string | null;
-          story_credits: number | null;
-          stripe_customer_id: string | null;
-          updated_at: string | null;
-          user_type: string | null;
-        };
-        Insert: {
-          account_status?: string | null;
-          created_at?: string | null;
-          email: string;
-          first_name?: string | null;
-          id: string;
-          is_early_launch_member?: boolean | null;
-          last_name?: string | null;
-          onboarding_completed?: boolean | null;
-          profile_photo_url?: string | null;
-          story_credits?: number | null;
-          stripe_customer_id?: string | null;
-          updated_at?: string | null;
-          user_type?: string | null;
-        };
-        Update: {
-          account_status?: string | null;
-          created_at?: string | null;
-          email?: string;
-          first_name?: string | null;
-          id?: string;
-          is_early_launch_member?: boolean | null;
-          last_name?: string | null;
-          onboarding_completed?: boolean | null;
-          profile_photo_url?: string | null;
-          story_credits?: number | null;
-          stripe_customer_id?: string | null;
-          updated_at?: string | null;
-          user_type?: string | null;
         };
         Relationships: [];
       };
-      waitlist: {
+      api_keys: {
         Row: {
-          converted_user_id: string | null;
-          created_at: string | null;
-          email: string;
+          capabilities: string[] | null;
+          created_at: string;
+          description: string | null;
           id: string;
-          name: string | null;
-          source: string | null;
+          key_hash: string;
+          last_used_at: string | null;
+          name: string;
+          permissions: Json | null;
+          user_id: string;
         };
         Insert: {
-          converted_user_id?: string | null;
-          created_at?: string | null;
-          email: string;
+          capabilities?: string[] | null;
+          created_at?: string;
+          description?: string | null;
           id?: string;
-          name?: string | null;
-          source?: string | null;
+          key_hash: string;
+          last_used_at?: string | null;
+          name: string;
+          permissions?: Json | null;
+          user_id: string;
         };
         Update: {
-          converted_user_id?: string | null;
-          created_at?: string | null;
-          email?: string;
+          capabilities?: string[] | null;
+          created_at?: string;
+          description?: string | null;
           id?: string;
-          name?: string | null;
-          source?: string | null;
+          key_hash?: string;
+          last_used_at?: string | null;
+          name?: string;
+          permissions?: Json | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      cheat_sheets: {
+        Row: {
+          content: Json | null;
+          created_at: string | null;
+          html_content: string | null;
+          id: string;
+          pdf_path: string | null;
+          pdf_url: string | null;
+          status: string | null;
+          title: string;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          content?: Json | null;
+          created_at?: string | null;
+          html_content?: string | null;
+          id?: string;
+          pdf_path?: string | null;
+          pdf_url?: string | null;
+          status?: string | null;
+          title: string;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          content?: Json | null;
+          created_at?: string | null;
+          html_content?: string | null;
+          id?: string;
+          pdf_path?: string | null;
+          pdf_url?: string | null;
+          status?: string | null;
+          title?: string;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      focus_items: {
+        Row: {
+          created_at: string;
+          day: string | null;
+          id: string;
+          project: string | null;
+          task: string | null;
+          updated_at: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          day?: string | null;
+          id?: string;
+          project?: string | null;
+          task?: string | null;
+          updated_at?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          day?: string | null;
+          id?: string;
+          project?: string | null;
+          task?: string | null;
+          updated_at?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      profiles: {
+        Row: {
+          created_at: string | null;
+          credits: number | null;
+          id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          credits?: number | null;
+          id: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          credits?: number | null;
+          id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      projects: {
+        Row: {
+          client: string | null;
+          created_at: string;
+          description: string | null;
+          hourly_rate: number | null;
+          id: string;
+          is_active: boolean | null;
+          name: string;
+          user_id: string;
+        };
+        Insert: {
+          client?: string | null;
+          created_at?: string;
+          description?: string | null;
+          hourly_rate?: number | null;
+          id?: string;
+          is_active?: boolean | null;
+          name: string;
+          user_id: string;
+        };
+        Update: {
+          client?: string | null;
+          created_at?: string;
+          description?: string | null;
+          hourly_rate?: number | null;
+          id?: string;
+          is_active?: boolean | null;
+          name?: string;
+          user_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "waitlist_converted_user_id_fkey";
-            columns: ["converted_user_id"];
+            foreignKeyName: "projects_user_id_fkey";
+            columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
           },
         ];
+      };
+      tasks: {
+        Row: {
+          artifacts: string[] | null;
+          assigned_agent: string | null;
+          attachments: Json | null;
+          blockers: string[] | null;
+          claimed_at: string | null;
+          completed_at: string | null;
+          confidence: number | null;
+          context: Json | null;
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          human_input_needed: boolean;
+          id: string;
+          intent: Database["public"]["Enums"]["task_intent"];
+          messages: Json | null;
+          metadata: Json | null;
+          parent_task_id: string | null;
+          priority: number;
+          project: string | null;
+          project_context: string | null;
+          recurrence: Json | null;
+          recurrence_source_id: string | null;
+          requires_human_review: boolean;
+          result: Json | null;
+          status: Database["public"]["Enums"]["task_status"];
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          artifacts?: string[] | null;
+          assigned_agent?: string | null;
+          attachments?: Json | null;
+          blockers?: string[] | null;
+          claimed_at?: string | null;
+          completed_at?: string | null;
+          confidence?: number | null;
+          context?: Json | null;
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          human_input_needed?: boolean;
+          id?: string;
+          intent?: Database["public"]["Enums"]["task_intent"];
+          messages?: Json | null;
+          metadata?: Json | null;
+          parent_task_id?: string | null;
+          priority?: number;
+          project?: string | null;
+          project_context?: string | null;
+          recurrence?: Json | null;
+          recurrence_source_id?: string | null;
+          requires_human_review?: boolean;
+          result?: Json | null;
+          status?: Database["public"]["Enums"]["task_status"];
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          artifacts?: string[] | null;
+          assigned_agent?: string | null;
+          attachments?: Json | null;
+          blockers?: string[] | null;
+          claimed_at?: string | null;
+          completed_at?: string | null;
+          confidence?: number | null;
+          context?: Json | null;
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          human_input_needed?: boolean;
+          id?: string;
+          intent?: Database["public"]["Enums"]["task_intent"];
+          messages?: Json | null;
+          metadata?: Json | null;
+          parent_task_id?: string | null;
+          priority?: number;
+          project?: string | null;
+          project_context?: string | null;
+          recurrence?: Json | null;
+          recurrence_source_id?: string | null;
+          requires_human_review?: boolean;
+          result?: Json | null;
+          status?: Database["public"]["Enums"]["task_status"];
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tasks_parent_task_id_fkey";
+            columns: ["parent_task_id"];
+            isOneToOne: false;
+            referencedRelation: "tasks";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tasks_recurrence_source_id_fkey";
+            columns: ["recurrence_source_id"];
+            isOneToOne: false;
+            referencedRelation: "tasks";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      time_entries: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          duration: number | null;
+          end_time: string | null;
+          id: string;
+          project_id: string;
+          start_time: string;
+          tags: string[] | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          duration?: number | null;
+          end_time?: string | null;
+          id?: string;
+          project_id: string;
+          start_time: string;
+          tags?: string[] | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          duration?: number | null;
+          end_time?: string | null;
+          id?: string;
+          project_id?: string;
+          start_time?: string;
+          tags?: string[] | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "time_entries_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      user_plans: {
+        Row: {
+          created_at: string;
+          current_period_end: string | null;
+          id: string;
+          plan: Database["public"]["Enums"]["plan_type"];
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          current_period_end?: string | null;
+          id?: string;
+          plan?: Database["public"]["Enums"]["plan_type"];
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          current_period_end?: string | null;
+          id?: string;
+          plan?: Database["public"]["Enums"]["plan_type"];
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      users: {
+        Row: {
+          created_at: string | null;
+          credits: number | null;
+          email: string | null;
+          gender: string | null;
+          has_claimed_signup_bonus: boolean | null;
+          id: string;
+          is_public: boolean | null;
+          name: string | null;
+          onboarding_completed: boolean | null;
+          photo_url: string | null;
+          updated_at: string | null;
+          username: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          credits?: number | null;
+          email?: string | null;
+          gender?: string | null;
+          has_claimed_signup_bonus?: boolean | null;
+          id?: string;
+          is_public?: boolean | null;
+          name?: string | null;
+          onboarding_completed?: boolean | null;
+          photo_url?: string | null;
+          updated_at?: string | null;
+          username?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          credits?: number | null;
+          email?: string | null;
+          gender?: string | null;
+          has_claimed_signup_bonus?: boolean | null;
+          id?: string;
+          is_public?: boolean | null;
+          name?: string | null;
+          onboarding_completed?: boolean | null;
+          photo_url?: string | null;
+          updated_at?: string | null;
+          username?: string | null;
+        };
+        Relationships: [];
       };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      add_credits: {
+      add_user_credits_v2: {
         Args: {
           p_amount: number;
-          p_description?: string;
-          p_stripe_payment_intent_id?: string;
-          p_type: string;
+          p_description: string;
+          p_transaction_type: string;
           p_user_id: string;
         };
-        Returns: {
-          amount: number;
-          balance_after: number;
-          book_id: string | null;
-          created_at: string | null;
-          description: string | null;
-          id: string;
-          stripe_payment_intent_id: string | null;
-          stripe_session_id: string | null;
-          type: string;
-          user_id: string;
-        };
-        SetofOptions: {
-          from: "*";
-          to: "credit_transactions";
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
-      };
-      admin_grant_credits: {
-        Args: { p_amount: number; p_reason: string; p_target_user_id: string };
-        Returns: {
-          amount: number;
-          balance_after: number;
-          book_id: string | null;
-          created_at: string | null;
-          description: string | null;
-          id: string;
-          stripe_payment_intent_id: string | null;
-          stripe_session_id: string | null;
-          type: string;
-          user_id: string;
-        };
-        SetofOptions: {
-          from: "*";
-          to: "credit_transactions";
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
-      };
-      has_sufficient_credits: {
-        Args: { p_required: number; p_user_id: string };
         Returns: boolean;
       };
-      is_admin: { Args: never; Returns: boolean };
-      log_generation_event: {
-        Args: {
-          p_art_style?: string;
-          p_book_id?: string;
-          p_book_spread_id?: string;
-          p_duration_ms?: number;
-          p_error_code?: string;
-          p_error_message?: string;
-          p_event_type: string;
-          p_model_used?: string;
-          p_request_data?: Json;
-          p_response_data?: Json;
-          p_spread_index?: number;
-          p_success: boolean;
-          p_user_id: string;
-        };
-        Returns: {
-          art_style: string | null;
-          book_id: string | null;
-          book_spread_id: string | null;
-          created_at: string | null;
-          duration_ms: number | null;
-          error_code: string | null;
-          error_message: string | null;
-          event_type: string;
-          id: string;
-          model_used: string | null;
-          request_data: Json | null;
-          response_data: Json | null;
-          spread_index: number | null;
-          success: boolean;
-          user_id: string | null;
-        };
-        SetofOptions: {
-          from: "*";
-          to: "generation_events";
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
-      };
-      select_story_concept: {
-        Args: { p_concept_id: string; p_session_id: string };
-        Returns: {
-          book_id: string | null;
-          chat_session_id: string;
-          concept_index: number | null;
-          cover_image_storage_path: string | null;
-          cover_image_url: string | null;
-          cover_prompt: string | null;
-          created_at: string | null;
-          id: string;
-          selected: boolean | null;
-          story_data: Json | null;
-          synopsis: string;
-          theme: string | null;
-          title: string;
-          user_id: string;
-        };
-        SetofOptions: {
-          from: "*";
-          to: "story_concepts";
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
-      };
-      select_style_preview: {
-        Args: { p_session_id: string; p_style_id: string };
-        Returns: {
-          character_description: string | null;
-          chat_session_id: string;
-          created_at: string | null;
-          id: string;
-          image_storage_path: string | null;
-          image_url: string;
-          prompt_used: string | null;
-          selected: boolean | null;
-          style_id: string;
-          style_name: string;
-          user_id: string;
-        };
-        SetofOptions: {
-          from: "*";
-          to: "style_previews";
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
-      };
-      soft_delete_book: {
-        Args: { p_book_id: string; p_user_id: string };
+      deduct_credit: { Args: { user_id: string }; Returns: undefined };
+      get_user_credits: { Args: { user_id: string }; Returns: number };
+      use_user_credits: {
+        Args: { p_amount: number; p_description: string; p_user_id: string };
         Returns: boolean;
-      };
-      use_credits: {
-        Args: {
-          p_amount: number;
-          p_book_id?: string;
-          p_description?: string;
-          p_user_id: string;
-        };
-        Returns: {
-          amount: number;
-          balance_after: number;
-          book_id: string | null;
-          created_at: string | null;
-          description: string | null;
-          id: string;
-          stripe_payment_intent_id: string | null;
-          stripe_session_id: string | null;
-          type: string;
-          user_id: string;
-        };
-        SetofOptions: {
-          from: "*";
-          to: "credit_transactions";
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
       };
     };
     Enums: {
-      [_ in never]: never;
+      log_action:
+        | "created"
+        | "claimed"
+        | "updated"
+        | "blocked"
+        | "completed"
+        | "added_subtask"
+        | "request_review"
+        | "unclaimed"
+        | "message_sent";
+      plan_type: "free" | "pro";
+      task_intent: "research" | "build" | "write" | "think" | "admin" | "ops";
+      task_status: "todo" | "in_progress" | "blocked" | "review" | "done";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1079,6 +644,21 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      log_action: [
+        "created",
+        "claimed",
+        "updated",
+        "blocked",
+        "completed",
+        "added_subtask",
+        "request_review",
+        "unclaimed",
+        "message_sent",
+      ],
+      plan_type: ["free", "pro"],
+      task_intent: ["research", "build", "write", "think", "admin", "ops"],
+      task_status: ["todo", "in_progress", "blocked", "review", "done"],
+    },
   },
 } as const;

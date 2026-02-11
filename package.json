@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "supabase:types": "npx supabase gen types --lang=typescript --project-id 'tdnctfnrltiiawxohagf' --schema public > types/supabase/database.types.ts",
+    "supabase:types": "npx supabase gen types --lang=typescript --project-id 'drhcexmsbugsctepxrog' --schema public > types/supabase/database.types.ts",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"

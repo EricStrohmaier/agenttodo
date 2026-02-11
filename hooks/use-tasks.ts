@@ -13,9 +13,9 @@ interface Filters {
   sort?: "priority" | "created_at" | "updated_at";
 }
 
-export function useTasks() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+export function useTasks(initialTasks?: Task[]) {
+  const [tasks, setTasks] = useState<Task[]>(initialTasks || []);
+  const [loading, setLoading] = useState(!initialTasks);
   const [filters, setFilters] = useState<Filters>({ sort: "priority" });
   const [userId, setUserId] = useState<string | null>(null);
   const supabase = useRef(createClient());
