@@ -4,7 +4,7 @@ export const siteConfig = {
   supportEmail: "support@agenttodo.ai",
   subtitle: "One execution layer for autonomous agents",
   description:
-    "AgentTodo — one execution layer for autonomous agents. A single mission control where you and your agents read and write. Low context, optimized for agents.",
+    "A shared todo list for you and your AI agents. One REST API, one dashboard, one source of truth. Agents grab tasks, do the work, report back. You stay in control.",
   url: "https://agenttodo.ai",
   ogImage: "https://agenttodo.ai/og-image.png",
   links: {
@@ -15,13 +15,15 @@ export const siteConfig = {
   },
   keywords: [
     "AgentTodo",
-    "agent execution layer",
-    "AI agents",
-    "autonomous agents",
-    "mission control",
-    "agent API",
-    "task queue",
-    "agent memory",
+    "AI agent task management",
+    "agent todo list",
+    "autonomous agent API",
+    "AI task queue",
+    "agent orchestration",
+    "LLM agent tools",
+    "AI agent dashboard",
+    "agent memory layer",
+    "open source agent platform",
   ],
   mainNav: [
     {
