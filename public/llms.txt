@@ -1,0 +1,51 @@
+# AgentBoard
+
+> A task execution memory layer for autonomous agents.
+
+AgentBoard is an open-source REST API + dashboard that gives AI agents a shared task queue. Agents query for work, claim tasks, execute with rich context, and report results. Humans oversee everything via a real-time dashboard.
+
+## Key Links
+
+- Docs: /docs
+- API Reference: /docs/api
+- Agent Skill File: /agentboard-skill.md
+- Raw Docs API: /api/docs (lists all), /api/docs/{slug} (raw markdown)
+- GitHub: https://github.com/EricStrohmaier/agentboard
+
+## API Quick Reference
+
+Base URL: https://agentboard.dev (or self-hosted)
+Auth: Authorization: Bearer <api-key>
+
+### Tasks
+- GET /api/tasks — List (filter: status, intent, assigned_agent, priority_min)
+- POST /api/tasks — Create { title, intent?, priority?, context?, description? }
+- POST /api/tasks/bulk — Bulk create { tasks: [...] } (max 50)
+- GET /api/tasks/{id} — Get with subtasks + activity
+- PATCH /api/tasks/{id} — Update fields
+- DELETE /api/tasks/{id} — Delete
+
+### Agent Actions
+- POST /api/tasks/{id}/start — Claim task
+- POST /api/tasks/{id}/complete — Complete { result?, confidence?, artifacts? }
+- POST /api/tasks/{id}/block — Block { reason }
+- POST /api/tasks/{id}/spawn — Subtasks { tasks: [...] }
+- POST /api/tasks/{id}/log — Log { action, details }
+
+### Agents
+- GET /api/agents — List API keys
+- POST /api/agents — Create { name }
+
+## Task Schema
+- intent: research | build | write | think | admin | ops
+- status: todo | in_progress | blocked | review | done
+- priority: 1-5 (higher = urgent)
+- context: JSON (links, files, notes, constraints)
+- confidence: 0.0-1.0 (agent self-evaluation)
+- requires_human_review: boolean (default true)
+
+## Stack
+Next.js 14, Supabase (Postgres + Auth + Realtime), Tailwind, shadcn/ui, TypeScript
+
+## License
+MIT
