@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { CheckSquare, Bot, BookOpen, Menu, LogOut } from "lucide-react";
+import { CheckSquare, Bot, BookOpen, CreditCard, Menu, LogOut, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
@@ -15,7 +15,8 @@ import type { User } from "@supabase/supabase-js";
 const navItems = [
   { href: "/dashboard", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/agents", label: "Agents", icon: Bot },
-  { href: "/docs", label: "Docs", icon: BookOpen },
+  { href: "/pricing", label: "Pricing", icon: CreditCard },
+  { href: "/docs", label: "Docs", icon: BookOpen, external: true },
 ];
 
 function NavContent({ user, onNavigate }: { user: User | null; onNavigate?: () => void }) {
@@ -64,6 +65,7 @@ function NavContent({ user, onNavigate }: { user: User | null; onNavigate?: () =
               key={item.href}
               href={item.href}
               onClick={onNavigate}
+              {...((item as any).external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
                 isActive
                   ? "bg-accent text-accent-foreground font-medium"
@@ -72,6 +74,7 @@ function NavContent({ user, onNavigate }: { user: User | null; onNavigate?: () =
             >
               <item.icon className="w-4 h-4" />
               <span className="flex-1">{item.label}</span>
+              {(item as any).external && <ExternalLink className="w-3 h-3 text-muted-foreground" />}
               {item.label === "Tasks" && openTaskCount !== null && openTaskCount > 0 && (
                 <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">
                   {openTaskCount}
