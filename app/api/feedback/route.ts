@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest, getSupabaseClient } from "@/lib/agent-auth";
 import { withCors } from "@/app/api/cors-middleware";
-import { success, error } from "@/lib/api-response";
+import { success, error, authError } from "@/lib/api-response";
 
 async function getHandler(req: NextRequest) {
   const auth = await authenticateRequest(req);
-  if (auth.error || !auth.data) return error(auth.error || "Unauthorized", 401);
+  if (auth.error || !auth.data) return authError(auth.error || "Unauthorized", auth.errorCode);
   if (!auth.data.permissions.read) return error("Read permission required", 403);
 
   const db = getSupabaseClient(auth.data);
@@ -26,7 +26,7 @@ async function getHandler(req: NextRequest) {
 
 async function postHandler(req: NextRequest) {
   const auth = await authenticateRequest(req);
-  if (auth.error || !auth.data) return error(auth.error || "Unauthorized", 401);
+  if (auth.error || !auth.data) return authError(auth.error || "Unauthorized", auth.errorCode);
   if (!auth.data.permissions.write) return error("Write permission required", 403);
 
   const body = await req.json().catch(() => ({}));

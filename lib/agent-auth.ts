@@ -11,7 +11,7 @@ export interface AgentAuth {
 
 export async function authenticateRequest(
   req: Request
-): Promise<{ data: AgentAuth | null; error: string | null }> {
+): Promise<{ data: AgentAuth | null; error: string | null; errorCode?: "no_auth" | "invalid_key" }> {
   const authHeader = req.headers.get("authorization");
 
   // Try Bearer token first (agent auth)
@@ -27,7 +27,7 @@ export async function authenticateRequest(
       .single();
 
     if (error || !apiKey) {
-      return { data: null, error: "Invalid API key" };
+      return { data: null, error: "Invalid API key", errorCode: "invalid_key" };
     }
 
     // Update last_used_at
@@ -69,7 +69,7 @@ export async function authenticateRequest(
     // cookie auth not available
   }
 
-  return { data: null, error: "Unauthorized" };
+  return { data: null, error: "Unauthorized", errorCode: "no_auth" };
 }
 
 /** Get the supabase client to use based on auth source */

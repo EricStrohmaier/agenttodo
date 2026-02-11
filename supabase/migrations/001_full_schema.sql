@@ -1,8 +1,8 @@
--- AgentTodo: Full schema (combined migration)
--- Combines: core, recurring tasks, agent metadata, plans & limits, user isolation
+-- AgentTodo: Full schema (single combined migration)
+-- All tables, indexes, RLS policies, functions, triggers, storage, and realtime
 
 -- === Enums ===
-CREATE TYPE task_intent AS ENUM ('research', 'build', 'write', 'think', 'admin', 'ops');
+CREATE TYPE task_intent AS ENUM ('research', 'build', 'write', 'think', 'admin', 'ops', 'monitor', 'test', 'review', 'deploy');
 CREATE TYPE task_status AS ENUM ('todo', 'in_progress', 'blocked', 'review', 'done');
 CREATE TYPE log_action AS ENUM ('created', 'claimed', 'updated', 'blocked', 'completed', 'added_subtask', 'request_review', 'unclaimed', 'message_sent');
 CREATE TYPE plan_type AS ENUM ('free', 'pro');
@@ -26,13 +26,11 @@ CREATE TABLE tasks (
   confidence float CHECK (confidence >= 0 AND confidence <= 1),
   requires_human_review boolean NOT NULL DEFAULT true,
   blockers text[] DEFAULT '{}',
-  attachments jsonb DEFAULT '[]',
   project text DEFAULT NULL,
-  project_context text DEFAULT NULL,
   human_input_needed boolean NOT NULL DEFAULT false,
-  messages jsonb DEFAULT '[]',
   recurrence jsonb,
   recurrence_source_id uuid REFERENCES tasks(id) ON DELETE SET NULL,
+  next_run_at timestamptz,
   claimed_at timestamptz,
   completed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -42,6 +40,7 @@ CREATE TABLE tasks (
 COMMENT ON COLUMN tasks.metadata IS 'Task metadata including attribution/watermark info.';
 COMMENT ON COLUMN tasks.recurrence IS 'Cron expression or interval for recurring tasks. Null = one-time.';
 COMMENT ON COLUMN tasks.recurrence_source_id IS 'Source template task ID for auto-spawned recurring instances.';
+COMMENT ON COLUMN tasks.next_run_at IS 'Next scheduled run time for recurring tasks. Computed from recurrence config. Indexed for efficient scheduler queries.';
 
 -- === Activity Log ===
 CREATE TABLE activity_log (
@@ -86,7 +85,61 @@ CREATE TABLE user_plans (
 -- Free: 50 active tasks, 2 API keys
 -- Pro ($4.99/mo): Unlimited tasks, unlimited API keys
 
+-- === Agent Feedback ===
+CREATE TABLE agent_feedback (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id),
+  agent_name text NOT NULL,
+  message text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+
+-- === Task Messages ===
+CREATE TABLE task_messages (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  from_agent text NOT NULL DEFAULT 'human',
+  content text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- === Task Attachments ===
+CREATE TABLE task_attachments (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  type text NOT NULL DEFAULT 'application/octet-stream',
+  size integer NOT NULL DEFAULT 0,
+  storage_path text NOT NULL,
+  url text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- === Projects ===
+CREATE TABLE projects_ (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  description text DEFAULT '',
+  color text DEFAULT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- === Task Dependencies ===
+CREATE TABLE task_dependencies (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  depends_on_task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT no_self_dependency CHECK (task_id != depends_on_task_id),
+  CONSTRAINT unique_dependency UNIQUE (task_id, depends_on_task_id)
+);
+
 -- === Indexes ===
+-- Tasks
 CREATE INDEX idx_tasks_user_id ON tasks(user_id);
 CREATE INDEX idx_tasks_user_status ON tasks(user_id, status);
 CREATE INDEX idx_tasks_status ON tasks(status);
@@ -98,13 +151,41 @@ CREATE INDEX idx_tasks_status_intent ON tasks(status, intent);
 CREATE INDEX idx_tasks_project ON tasks(project) WHERE project IS NOT NULL;
 CREATE INDEX idx_tasks_human_input ON tasks(human_input_needed) WHERE human_input_needed = true;
 CREATE INDEX idx_tasks_recurrence ON tasks(recurrence) WHERE recurrence IS NOT NULL;
+CREATE INDEX idx_tasks_next_run ON tasks(next_run_at) WHERE next_run_at IS NOT NULL;
+
+-- Activity log
 CREATE INDEX idx_activity_log_task ON activity_log(task_id);
 CREATE INDEX idx_activity_log_created ON activity_log(created_at DESC);
 CREATE INDEX idx_activity_log_user_id ON activity_log(user_id);
+
+-- API keys
 CREATE INDEX idx_api_keys_hash ON api_keys(key_hash);
 CREATE INDEX idx_api_keys_user_id ON api_keys(user_id);
+
+-- User plans
 CREATE INDEX idx_user_plans_user ON user_plans(user_id);
 CREATE INDEX idx_user_plans_stripe ON user_plans(stripe_customer_id) WHERE stripe_customer_id IS NOT NULL;
+
+-- Agent feedback
+CREATE INDEX idx_agent_feedback_user ON agent_feedback(user_id);
+
+-- Task messages
+CREATE INDEX idx_task_messages_task ON task_messages(task_id);
+CREATE INDEX idx_task_messages_user ON task_messages(user_id);
+CREATE INDEX idx_task_messages_created ON task_messages(task_id, created_at ASC);
+
+-- Task attachments
+CREATE INDEX idx_task_attachments_task ON task_attachments(task_id);
+CREATE INDEX idx_task_attachments_user ON task_attachments(user_id);
+
+-- Projects
+CREATE UNIQUE INDEX idx_projects_user_name ON projects_(user_id, name);
+CREATE INDEX idx_projects_user ON projects_(user_id);
+
+-- Task dependencies
+CREATE INDEX idx_task_deps_task ON task_dependencies(task_id);
+CREATE INDEX idx_task_deps_depends_on ON task_dependencies(depends_on_task_id);
+CREATE INDEX idx_task_deps_user ON task_dependencies(user_id);
 
 -- === Functions & Triggers ===
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -145,6 +226,11 @@ ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_plans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agent_feedback ENABLE ROW LEVEL SECURITY;
+ALTER TABLE task_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE task_attachments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE projects_ ENABLE ROW LEVEL SECURITY;
+ALTER TABLE task_dependencies ENABLE ROW LEVEL SECURITY;
 
 -- Authenticated users: scoped to own data via user_id
 CREATE POLICY "user_tasks" ON tasks
@@ -169,15 +255,46 @@ CREATE POLICY "Users can read own plan" ON user_plans
   FOR SELECT TO authenticated
   USING (auth.uid() = user_id);
 
+CREATE POLICY "user_agent_feedback" ON agent_feedback
+  FOR ALL TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "user_task_messages" ON task_messages
+  FOR ALL TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "user_task_attachments" ON task_attachments
+  FOR ALL TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "user_projects" ON projects_
+  FOR ALL TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "user_task_dependencies" ON task_dependencies
+  FOR ALL TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
 -- Service role: full access (used by API server)
 CREATE POLICY "service_tasks" ON tasks FOR ALL TO service_role USING (true) WITH CHECK (true);
 CREATE POLICY "service_activity" ON activity_log FOR ALL TO service_role USING (true) WITH CHECK (true);
 CREATE POLICY "service_api_keys" ON api_keys FOR ALL TO service_role USING (true) WITH CHECK (true);
 CREATE POLICY "Service role full access" ON user_plans FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_agent_feedback" ON agent_feedback FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_task_messages" ON task_messages FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_task_attachments" ON task_attachments FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_projects" ON projects_ FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_task_dependencies" ON task_dependencies FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- === Realtime ===
 ALTER PUBLICATION supabase_realtime ADD TABLE tasks;
 ALTER PUBLICATION supabase_realtime ADD TABLE activity_log;
+ALTER PUBLICATION supabase_realtime ADD TABLE task_messages;
 
 -- === Storage: task attachments (private, user-scoped) ===
 INSERT INTO storage.buckets (id, name, public) VALUES ('task-attachments', 'task-attachments', false);

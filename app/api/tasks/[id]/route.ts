@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest, getSupabaseClient } from "@/lib/agent-auth";
 import { withCors } from "@/app/api/cors-middleware";
-import { success, error } from "@/lib/api-response";
+import { success, error, authError } from "@/lib/api-response";
 import type { TaskIntent, TaskStatus } from "@/types/tasks";
 
-const VALID_INTENTS: TaskIntent[] = ["research", "build", "write", "think", "admin", "ops"];
+const VALID_INTENTS: TaskIntent[] = ["research", "build", "write", "think", "admin", "ops", "monitor", "test", "review", "deploy"];
 const VALID_STATUSES: TaskStatus[] = ["todo", "in_progress", "blocked", "review", "done"];
 
 /** Metadata must be flat key-value pairs (no nested objects/arrays). */
@@ -17,7 +17,7 @@ function isValidMetadata(v: any): boolean {
 
 async function handler(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authenticateRequest(req);
-  if (auth.error || !auth.data) return error(auth.error || "Unauthorized", 401);
+  if (auth.error || !auth.data) return authError(auth.error || "Unauthorized", auth.errorCode);
 
   const { id } = await params;
   const db = getSupabaseClient(auth.data);

@@ -2,11 +2,11 @@ import { NextRequest } from "next/server";
 import { randomBytes, createHash } from "crypto";
 import { authenticateRequest, getSupabaseClient } from "@/lib/agent-auth";
 import { withCors } from "@/app/api/cors-middleware";
-import { success, error } from "@/lib/api-response";
+import { success, error, authError } from "@/lib/api-response";
 
 async function handler(req: NextRequest) {
   const auth = await authenticateRequest(req);
-  if (auth.error || !auth.data) return error(auth.error || "Unauthorized", 401);
+  if (auth.error || !auth.data) return authError(auth.error || "Unauthorized", auth.errorCode);
 
   // Agents route requires dashboard (session) auth only
   if (auth.data.source !== "session") return error("Dashboard auth required", 403);

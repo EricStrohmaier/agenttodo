@@ -1,4 +1,4 @@
-export type TaskIntent = "research" | "build" | "write" | "think" | "admin" | "ops";
+export type TaskIntent = "research" | "build" | "write" | "think" | "admin" | "ops" | "monitor" | "test" | "review" | "deploy";
 export type TaskStatus = "todo" | "in_progress" | "blocked" | "review" | "done";
 export type LogAction = "created" | "claimed" | "updated" | "blocked" | "completed" | "added_subtask" | "request_review" | "unclaimed" | "message_sent";
 

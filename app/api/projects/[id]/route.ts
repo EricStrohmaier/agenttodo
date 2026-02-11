@@ -1,18 +1,21 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest, getSupabaseClient } from "@/lib/agent-auth";
 import { withCors } from "@/app/api/cors-middleware";
-import { success, error } from "@/lib/api-response";
+import { success, error, authError } from "@/lib/api-response";
 
-async function handler(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handler(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const auth = await authenticateRequest(req);
-  if (auth.error || !auth.data) return error(auth.error || "Unauthorized", 401);
+  if (auth.error || !auth.data) return authError(auth.error || "Unauthorized", auth.errorCode);
 
   const { id } = await params;
   const db = getSupabaseClient(auth.data);
 
   if (req.method === "GET") {
     const { data: project, error: dbErr } = await db
-      .from("projects")
+      .from("projects_")
       .select("*")
       .eq("id", id)
       .eq("user_id", auth.data.userId)
@@ -23,22 +26,25 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   }
 
   if (req.method === "PATCH") {
-    if (!auth.data.permissions.write) return error("Write permission required", 403);
+    if (!auth.data.permissions.write)
+      return error("Write permission required", 403);
 
     const body = await req.json();
     const update: Record<string, any> = {};
 
     if (body.name !== undefined) {
-      if (typeof body.name !== "string" || !body.name.trim()) return error("name must be a non-empty string");
+      if (typeof body.name !== "string" || !body.name.trim())
+        return error("name must be a non-empty string");
       update.name = body.name.trim();
     }
     if (body.description !== undefined) update.description = body.description;
     if (body.color !== undefined) update.color = body.color;
 
-    if (Object.keys(update).length === 0) return error("No valid fields to update");
+    if (Object.keys(update).length === 0)
+      return error("No valid fields to update");
 
     const { data: project, error: dbErr } = await db
-      .from("projects")
+      .from("projects_")
       .update(update)
       .eq("id", id)
       .eq("user_id", auth.data.userId)
@@ -46,26 +52,36 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
       .single();
 
     if (dbErr) {
-      if (dbErr.code === "23505") return error("A project with this name already exists", 409);
+      if (dbErr.code === "23505")
+        return error("A project with this name already exists", 409);
       return error(dbErr.message, 500);
     }
     return success(project);
   }
 
   if (req.method === "DELETE") {
-    if (!auth.data.permissions.write) return error("Write permission required", 403);
+    if (!auth.data.permissions.write)
+      return error("Write permission required", 403);
 
     // Nullify project field on associated tasks
     await db
       .from("tasks")
       .update({ project: null })
       .eq("user_id", auth.data.userId)
-      .eq("project", (
-        await db.from("projects").select("name").eq("id", id).eq("user_id", auth.data.userId).single()
-      ).data?.name || "");
+      .eq(
+        "project",
+        (
+          await db
+            .from("projects_")
+            .select("name")
+            .eq("id", id)
+            .eq("user_id", auth.data.userId)
+            .single()
+        ).data?.name || "",
+      );
 
     const { error: dbErr } = await db
-      .from("projects")
+      .from("projects_")
       .delete()
       .eq("id", id)
       .eq("user_id", auth.data.userId);

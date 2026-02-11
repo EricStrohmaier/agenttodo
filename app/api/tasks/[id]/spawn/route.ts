@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest, getSupabaseClient } from "@/lib/agent-auth";
 import { withCors } from "@/app/api/cors-middleware";
-import { success, error } from "@/lib/api-response";
+import { success, error, authError } from "@/lib/api-response";
 import type { CreateTaskInput } from "@/types/tasks";
 
 async function handler(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authenticateRequest(req);
-  if (auth.error || !auth.data) return error(auth.error || "Unauthorized", 401);
+  if (auth.error || !auth.data) return authError(auth.error || "Unauthorized", auth.errorCode);
   if (!auth.data.permissions.write) return error("Write permission required", 403);
 
   const { id } = await params;
