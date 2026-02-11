@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CheckSquare, Bot, BookOpen, Menu, X, LogOut } from "lucide-react";
+import { CheckSquare, Bot, BookOpen, Menu, X, LogOut, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -17,6 +17,7 @@ const navItems = [
   { href: "/dashboard", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/agents", label: "Agents", icon: Bot },
   { href: "/docs", label: "Docs", icon: BookOpen },
+  { href: "/pricing", label: "Pricing", icon: CreditCard },
 ];
 
 function NavContent({ onNavigate }: { onNavigate?: () => void }) {
