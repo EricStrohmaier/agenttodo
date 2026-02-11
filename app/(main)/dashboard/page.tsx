@@ -1,28 +1,81 @@
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function Dashboard() {
-  const supabase = await createClient();
-  const { data: user } = await supabase.auth.getUser();
+import { useState, useMemo } from "react";
+import { useTasks } from "@/hooks/use-tasks";
+import { QuickAdd } from "@/components/dashboard/quick-add";
+import { TaskFilters } from "@/components/dashboard/task-filters";
+import { TaskList } from "@/components/dashboard/task-list";
+import { TaskBoard } from "@/components/dashboard/task-board";
+import { TaskDetail } from "@/components/dashboard/task-detail";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { List, Columns3 } from "lucide-react";
+import type { Task } from "@/types/tasks";
 
-  if (!user || !user.user) {
-    redirect("/signin");
-  }
+export default function DashboardPage() {
+  const { tasks, loading, filters, setFilters, createTask, updateTask, deleteTask, spawnSubtask } = useTasks();
+  const [view, setView] = useState<"list" | "board">("list");
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  const uniqueAgents = useMemo(() => {
+    const agents = new Set(tasks.map((t) => t.assigned_agent).filter(Boolean) as string[]);
+    return Array.from(agents);
+  }, [tasks]);
+
+  const handleToggleDone = (task: Task) => {
+    const newStatus = task.status === "done" ? "todo" : "done";
+    updateTask(task.id, { status: newStatus });
+  };
+
+  // When task is updated in detail panel, also update selectedTask
+  const handleUpdate = async (id: string, updates: Partial<Task>) => {
+    const result = await updateTask(id, updates);
+    if (result && selectedTask?.id === id) {
+      setSelectedTask({ ...selectedTask, ...updates, ...result });
+    }
+    return result;
+  };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold">
-          AgentBoard Dashboard
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your agent tasks and workflows.
-        </p>
+    <div className="h-screen flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b">
+        <h1 className="text-lg font-semibold pl-10 md:pl-0">Tasks</h1>
+        <Tabs value={view} onValueChange={(v) => setView(v as "list" | "board")}>
+          <TabsList className="h-8">
+            <TabsTrigger value="list" className="h-6 px-2 text-xs gap-1">
+              <List className="w-3.5 h-3.5" /> List
+            </TabsTrigger>
+            <TabsTrigger value="board" className="h-6 px-2 text-xs gap-1">
+              <Columns3 className="w-3.5 h-3.5" /> Board
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
-      <div className="rounded-lg border p-8 text-center text-muted-foreground">
-        <p>Dashboard coming soon. Start building your agent workflows here.</p>
+      {/* Quick add */}
+      <QuickAdd onAdd={createTask} />
+
+      {/* Filters */}
+      <TaskFilters filters={filters} onFiltersChange={setFilters} agents={uniqueAgents} />
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto">
+        {view === "list" ? (
+          <TaskList tasks={tasks} loading={loading} onSelect={setSelectedTask} onToggleDone={handleToggleDone} />
+        ) : (
+          <TaskBoard tasks={tasks} loading={loading} onSelect={setSelectedTask} />
+        )}
       </div>
+
+      {/* Detail panel */}
+      <TaskDetail
+        task={selectedTask}
+        open={!!selectedTask}
+        onClose={() => setSelectedTask(null)}
+        onUpdate={handleUpdate}
+        onDelete={deleteTask}
+        onSpawnSubtask={spawnSubtask}
+      />
     </div>
   );
 }
