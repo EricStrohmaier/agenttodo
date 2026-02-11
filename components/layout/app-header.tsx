@@ -63,7 +63,8 @@ export function AppHeader() {
     <header className="h-14 border-b bg-background flex items-center px-4 shrink-0 sticky top-0 z-50">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 font-semibold text-base mr-8">
-        <img src="/favicon.svg" alt="AgentTodo" className="w-7 h-7" />
+        <img src="/favicon-light.svg" alt="AgentTodo" className="w-7 h-7 dark:hidden" />
+        <img src="/favicon-dark.svg" alt="AgentTodo" className="w-7 h-7 hidden dark:block" />
         <span>AgentTodo</span>
       </Link>
 
