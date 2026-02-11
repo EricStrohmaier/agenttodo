@@ -76,15 +76,6 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="border-t px-6 py-8 text-center text-sm text-muted-foreground">
-        <a
-          href="https://github.com/EricStrohmaier/agentboard"
-          className="hover:text-foreground transition-colors"
-        >
-          Open source on GitHub
-        </a>
-      </div>
     </div>
   );
 }
