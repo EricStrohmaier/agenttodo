@@ -8,6 +8,7 @@ export default async function DashboardPage() {
 
   let initialTasks: any[] = [];
   let initialProjects: string[] = [];
+  let initialTotal = 0;
 
   if (user) {
     const db = supabaseAdmin();
@@ -15,11 +16,11 @@ export default async function DashboardPage() {
     const [tasksRes, projectsRes] = await Promise.all([
       db
         .from("tasks")
-        .select("id,title,status,intent,priority,project,assigned_agent,human_input_needed,parent_task_id,created_by,updated_at,created_at")
+        .select("id,title,status,intent,priority,project,assigned_agent,human_input_needed,parent_task_id,created_by,updated_at,created_at", { count: "exact" })
         .eq("user_id", user.id)
         .order("priority", { ascending: false })
         .order("created_at", { ascending: false })
-        .limit(100),
+        .range(0, 49),
       db
         .from("projects")
         .select("name")
@@ -28,6 +29,7 @@ export default async function DashboardPage() {
     ]);
 
     initialTasks = tasksRes.data || [];
+    initialTotal = tasksRes.count ?? initialTasks.length;
     initialProjects = (projectsRes.data || []).map((p: any) => p.name);
   }
 
@@ -35,6 +37,7 @@ export default async function DashboardPage() {
     <DashboardClient
       user={user ? { id: user.id, email: user.email } : null}
       initialTasks={initialTasks}
+      initialTotal={initialTotal}
       initialProjects={initialProjects}
     />
   );

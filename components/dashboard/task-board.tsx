@@ -17,11 +17,16 @@ import { TaskCard, SortableTaskCard } from "./task-card";
 import { BoardColumn } from "./board-column";
 import { ALL_STATUSES, STATUS_LABELS, STATUS_DOT_COLORS } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import type { Task, TaskStatus } from "@/types/tasks";
 
 interface TaskBoardProps {
   tasks: Task[];
   loading: boolean;
+  loadingMore?: boolean;
+  hasMore?: boolean;
+  onLoadMore?: () => void;
   onSelect: (task: Task) => void;
   onStatusChange?: (id: string, status: TaskStatus) => void;
   onUpdate?: (id: string, updates: Partial<Task>) => void;
@@ -29,7 +34,7 @@ interface TaskBoardProps {
   shiftHeld?: boolean;
 }
 
-export function TaskBoard({ tasks, loading, onSelect, onStatusChange, onUpdate, onDelete, shiftHeld }: TaskBoardProps) {
+export function TaskBoard({ tasks, loading, loadingMore, hasMore, onLoadMore, onSelect, onStatusChange, onUpdate, onDelete, shiftHeld }: TaskBoardProps) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
   const sensors = useSensors(
@@ -116,6 +121,21 @@ export function TaskBoard({ tasks, loading, onSelect, onStatusChange, onUpdate, 
           </div>
         ) : null}
       </DragOverlay>
+
+      {hasMore && (
+        <div className="flex justify-center px-4 md:px-6 pb-4">
+          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={onLoadMore} disabled={loadingMore}>
+            {loadingMore ? (
+              <>
+                <Loader2 className="w-3 h-3 mr-1.5 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              "Load more tasks"
+            )}
+          </Button>
+        </div>
+      )}
     </DndContext>
   );
 }

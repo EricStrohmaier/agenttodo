@@ -13,10 +13,14 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
+const stripeEnabled = !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
 const navItems = [
   { href: "/dashboard", label: "Tasks", icon: ListTodo },
   { href: "/dashboard/agents", label: "Agents", icon: Cpu },
-  { href: "/pricing", label: "Pricing", icon: Sparkles },
+  ...(stripeEnabled
+    ? [{ href: "/pricing", label: "Pricing", icon: Sparkles }]
+    : []),
   { href: "/docs", label: "Docs", icon: FileText, external: true },
 ];
 
@@ -30,10 +34,15 @@ function NavContent({ user, onNavigate, collapsed = false, onToggle }: { user: U
     if (!user) return;
     async function fetchCount() {
       try {
-        const res = await fetch("/api/tasks?limit=100");
+        // Use limit=1 to minimize payload; total count comes from the API response
+        const res = await fetch("/api/tasks?limit=1");
         const json = await res.json();
-        if (json.data) {
-          setOpenTaskCount(json.data.filter((t: any) => t.status !== "done").length);
+        if (json.total !== undefined) {
+          // Total excludes done tasks: fetch done count separately
+          const doneRes = await fetch("/api/tasks?status=done&limit=1");
+          const doneJson = await doneRes.json();
+          const doneCount = doneJson.total ?? 0;
+          setOpenTaskCount(json.total - doneCount);
         }
       } catch {}
     }
@@ -191,15 +200,9 @@ function NavContent({ user, onNavigate, collapsed = false, onToggle }: { user: U
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ user }: { user: User | null }) {
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem("sidebar-collapsed");

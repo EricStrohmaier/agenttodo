@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { authenticateRequest, getSupabaseClient } from "@/lib/agent-auth";
 import { withCors } from "@/app/api/cors-middleware";
 import { success, error } from "@/lib/api-response";
@@ -22,7 +22,7 @@ async function handler(req: NextRequest) {
     const SUMMARY_FIELDS = "id,title,status,intent,priority,project,assigned_agent,human_input_needed,parent_task_id,created_by,updated_at,created_at";
     const selectFields = fieldsParam === "full" ? "*" : SUMMARY_FIELDS;
 
-    let query = db.from("tasks").select(selectFields).eq("user_id", auth.data.userId);
+    let query = db.from("tasks").select(selectFields, { count: "exact" }).eq("user_id", auth.data.userId);
 
     const status = params.get("status");
     if (status && VALID_STATUSES.includes(status as TaskStatus)) query = query.eq("status", status);
@@ -52,9 +52,9 @@ async function handler(req: NextRequest) {
     query = query.order("priority", { ascending: false }).order("created_at", { ascending: false });
     query = query.range(offset, offset + limit - 1);
 
-    const { data, error: dbErr } = await query;
+    const { data, error: dbErr, count } = await query;
     if (dbErr) return error(dbErr.message, 500);
-    return success(data);
+    return NextResponse.json({ data, total: count ?? 0, error: null });
   }
 
   if (req.method === "POST") {

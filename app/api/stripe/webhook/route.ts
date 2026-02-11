@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import { supabaseAdmin } from "@/utils/supabase/admin";
 
 // Initialize Stripe lazily to avoid build errors when key is not set
 const getStripe = () => {
@@ -10,7 +11,7 @@ const getStripe = () => {
     throw new Error("STRIPE_SECRET_KEY is not configured");
   }
   return new Stripe(key, {
-    apiVersion: "2025-08-27.basil",
+    apiVersion: "2026-01-28.clover",
   });
 };
 
@@ -189,6 +190,58 @@ export async function POST(req: Request) {
         } catch (error) {
           console.error("Error processing AgentTodo checkout:", error);
         }
+      } else if (checkoutSession.mode === "subscription") {
+        // Handle subscription checkout
+        try {
+          const userId =
+            checkoutSession.metadata?.userId;
+          const subscriptionId =
+            typeof checkoutSession.subscription === "string"
+              ? checkoutSession.subscription
+              : (checkoutSession.subscription as Stripe.Subscription)?.id;
+          const customerId =
+            typeof checkoutSession.customer === "string"
+              ? checkoutSession.customer
+              : (checkoutSession.customer as Stripe.Customer)?.id;
+
+          if (userId && subscriptionId && customerId) {
+            // Fetch subscription to get period end (v20: period on items)
+            const subscription =
+              await stripe.subscriptions.retrieve(subscriptionId, {
+                expand: ["items.data"],
+              });
+            const periodEndTs =
+              subscription.items.data[0]?.current_period_end;
+            const periodEnd = periodEndTs
+              ? new Date(periodEndTs * 1000).toISOString()
+              : null;
+
+            const sb = supabaseAdmin();
+            const { error: upsertError } = await sb
+              .from("user_plans")
+              .upsert(
+                {
+                  user_id: userId,
+                  plan: "pro",
+                  stripe_customer_id: customerId,
+                  stripe_subscription_id: subscriptionId,
+                  current_period_end: periodEnd,
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "user_id" },
+              );
+
+            if (upsertError) {
+              console.error("Error upserting user_plans:", upsertError);
+            } else {
+              console.log(
+                `Subscription activated for user ${userId}, sub ${subscriptionId}`,
+              );
+            }
+          }
+        } catch (error) {
+          console.error("Error processing subscription checkout:", error);
+        }
       } else if (checkoutSession.metadata?.product === "unfollow-challenge") {
         // Legacy unfollow-challenge handling
         try {
@@ -234,6 +287,96 @@ export async function POST(req: Request) {
         console.error("Error processing refund:", error);
       }
       break;
+
+    case "customer.subscription.updated": {
+      const subscription = event.data.object as Stripe.Subscription;
+      const userId = subscription.metadata?.userId;
+      if (userId) {
+        const plan =
+          subscription.status === "active" ||
+          subscription.status === "trialing"
+            ? "pro"
+            : "free";
+        const periodEndTs =
+          subscription.items?.data?.[0]?.current_period_end;
+        const periodEnd = periodEndTs
+          ? new Date(periodEndTs * 1000).toISOString()
+          : null;
+        const sb = supabaseAdmin();
+        const { error } = await sb
+          .from("user_plans")
+          .upsert(
+            {
+              user_id: userId,
+              plan,
+              stripe_subscription_id: subscription.id,
+              current_period_end: periodEnd,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" },
+          );
+        if (error) console.error("Error updating subscription:", error);
+        else console.log(`Subscription updated for user ${userId}: ${plan}`);
+      }
+      break;
+    }
+
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription;
+      const userId = subscription.metadata?.userId;
+      if (userId) {
+        const sb = supabaseAdmin();
+        const { error } = await sb
+          .from("user_plans")
+          .update({
+            plan: "free",
+            stripe_subscription_id: null,
+            current_period_end: null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", userId);
+        if (error) console.error("Error reverting plan:", error);
+        else console.log(`Subscription deleted, user ${userId} reverted to free`);
+      }
+      break;
+    }
+
+    case "invoice.payment_succeeded": {
+      const invoice = event.data.object as Stripe.Invoice;
+      const subRef =
+        invoice.parent?.subscription_details?.subscription;
+      const subscriptionId =
+        typeof subRef === "string" ? subRef : subRef?.id;
+      if (subscriptionId) {
+        try {
+          const subscription =
+            await stripe.subscriptions.retrieve(subscriptionId, {
+              expand: ["items.data"],
+            });
+          const userId = subscription.metadata?.userId;
+          if (userId) {
+            const periodEndTs =
+              subscription.items.data[0]?.current_period_end;
+            const periodEnd = periodEndTs
+              ? new Date(periodEndTs * 1000).toISOString()
+              : null;
+            const sb = supabaseAdmin();
+            const { error } = await sb
+              .from("user_plans")
+              .update({
+                current_period_end: periodEnd,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("user_id", userId);
+            if (error) console.error("Error updating period end:", error);
+            else console.log(`Invoice paid, updated period end for user ${userId}`);
+          }
+        } catch (err) {
+          console.error("Error processing invoice payment:", err);
+        }
+      }
+      break;
+    }
 
     default:
       console.log(`Unhandled event type: ${event.type}`);

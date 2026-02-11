@@ -62,11 +62,12 @@ function WelcomeBanner({ onDismiss }: { onDismiss: () => void }) {
 interface DashboardClientProps {
   user: { id: string; email?: string | null } | null;
   initialTasks: Task[];
+  initialTotal: number;
   initialProjects: string[];
 }
 
-export function DashboardClient({ user, initialTasks, initialProjects }: DashboardClientProps) {
-  const { tasks, loading, filters, setFilters, createTask, updateTask, deleteTask, spawnSubtask, uploadAttachment, sendMessage } = useTasks(initialTasks);
+export function DashboardClient({ user, initialTasks, initialTotal, initialProjects }: DashboardClientProps) {
+  const { tasks, loading, loadingMore, total, hasMore, loadMore, filters, setFilters, createTask, updateTask, deleteTask, spawnSubtask, uploadAttachment, sendMessage } = useTasks(initialTasks, initialTotal);
   const [view, setView] = useState<"list" | "board">(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("dashboard-view");
@@ -166,9 +167,9 @@ export function DashboardClient({ user, initialTasks, initialProjects }: Dashboa
             </p>
           </div>
         ) : view === "list" ? (
-          <TaskList tasks={tasks} loading={loading} onSelect={handleSelect} onToggleDone={handleToggleDone} onUpdate={(id, updates) => updateTask(id, updates)} onDelete={deleteTask} shiftHeld={shiftHeld} />
+          <TaskList tasks={tasks} loading={loading} loadingMore={loadingMore} total={total} hasMore={hasMore} onLoadMore={loadMore} onSelect={handleSelect} onToggleDone={handleToggleDone} onUpdate={(id, updates) => updateTask(id, updates)} onDelete={deleteTask} shiftHeld={shiftHeld} />
         ) : (
-          <TaskBoard tasks={tasks} loading={loading} onSelect={handleSelect} onStatusChange={(id, status) => updateTask(id, { status })} onUpdate={(id, updates) => updateTask(id, updates)} onDelete={deleteTask} shiftHeld={shiftHeld} />
+          <TaskBoard tasks={tasks} loading={loading} loadingMore={loadingMore} hasMore={hasMore} onLoadMore={loadMore} onSelect={handleSelect} onStatusChange={(id, status) => updateTask(id, { status })} onUpdate={(id, updates) => updateTask(id, updates)} onDelete={deleteTask} shiftHeld={shiftHeld} />
         )}
       </div>
 

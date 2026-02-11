@@ -5,6 +5,8 @@ import { createClient } from "@/utils/supabase/client";
 import type { Task, TaskStatus, TaskIntent } from "@/types/tasks";
 import { toast } from "sonner";
 
+const PAGE_SIZE = 50;
+
 interface Filters {
   status?: TaskStatus | "all";
   intent?: TaskIntent | "all";
@@ -13,14 +15,18 @@ interface Filters {
   sort?: "priority" | "created_at" | "updated_at";
 }
 
-export function useTasks(initialTasks?: Task[]) {
+export function useTasks(initialTasks?: Task[], initialTotal?: number) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks || []);
   const [loading, setLoading] = useState(!initialTasks);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [total, setTotal] = useState(initialTotal ?? initialTasks?.length ?? 0);
   const [filters, setFilters] = useState<Filters>({ sort: "priority" });
   const [userId, setUserId] = useState<string | null>(null);
   const supabase = useRef(createClient());
   // Track IDs we've updated optimistically so realtime skips the duplicate toast
   const optimisticUpdates = useRef(new Set<string>());
+
+  const hasMore = tasks.length < total;
 
   // Helper: deduplicate tasks by ID (keeps first occurrence)
   const dedup = (arr: Task[]) => {
@@ -32,28 +38,49 @@ export function useTasks(initialTasks?: Task[]) {
     });
   };
 
-  const fetchTasks = useCallback(async () => {
+  const buildParams = useCallback((offset = 0) => {
     const params = new URLSearchParams();
     if (filters.status && filters.status !== "all") params.set("status", filters.status);
     if (filters.intent && filters.intent !== "all") params.set("intent", filters.intent);
     if (filters.agent) params.set("assigned_agent", filters.agent);
     if (filters.project) params.set("project", filters.project);
-    params.set("limit", "100");
+    params.set("limit", String(PAGE_SIZE));
+    params.set("offset", String(offset));
+    return params;
+  }, [filters]);
 
+  const sortTasks = useCallback((list: Task[]) => {
+    if (filters.sort === "created_at") {
+      return [...list].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    } else if (filters.sort === "updated_at") {
+      return [...list].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+    }
+    return list;
+  }, [filters.sort]);
+
+  const fetchTasks = useCallback(async () => {
+    const params = buildParams(0);
     const res = await fetch(`/api/tasks?${params}`);
     const json = await res.json();
     if (json.data) {
-      let sorted = json.data as Task[];
-      if (filters.sort === "created_at") {
-        sorted.sort((a: Task, b: Task) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      } else if (filters.sort === "updated_at") {
-        sorted.sort((a: Task, b: Task) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-      }
-      // Default sort from API is priority desc
-      setTasks(sorted);
+      setTasks(sortTasks(json.data as Task[]));
+      setTotal(json.total ?? json.data.length);
     }
     setLoading(false);
-  }, [filters]);
+  }, [buildParams, sortTasks]);
+
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    const params = buildParams(tasks.length);
+    const res = await fetch(`/api/tasks?${params}`);
+    const json = await res.json();
+    if (json.data) {
+      setTasks((prev) => sortTasks(dedup([...prev, ...(json.data as Task[])])));
+      if (json.total !== undefined) setTotal(json.total);
+    }
+    setLoadingMore(false);
+  }, [loadingMore, hasMore, buildParams, tasks.length, sortTasks]);
 
   // Fetch current user ID for realtime filtering
   useEffect(() => {
@@ -79,6 +106,7 @@ export function useTasks(initialTasks?: Task[]) {
           if (payload.eventType === "INSERT") {
             const newTask = payload.new as Task;
             setTasks((prev) => dedup([newTask, ...prev]));
+            setTotal((prev) => prev + 1);
           } else if (payload.eventType === "UPDATE") {
             const updated = payload.new as Task;
             // Always sync the latest data from realtime
@@ -96,6 +124,7 @@ export function useTasks(initialTasks?: Task[]) {
           } else if (payload.eventType === "DELETE") {
             const deleted = payload.old as Task;
             setTasks((prev) => prev.filter((t) => t.id !== deleted.id));
+            setTotal((prev) => Math.max(0, prev - 1));
           }
         }
       )
@@ -153,6 +182,7 @@ export function useTasks(initialTasks?: Task[]) {
     }
     toast.success("Task deleted");
     setTasks((prev) => prev.filter((t) => t.id !== id));
+    setTotal((prev) => Math.max(0, prev - 1));
     return true;
   };
 
@@ -206,6 +236,10 @@ export function useTasks(initialTasks?: Task[]) {
   return {
     tasks,
     loading,
+    loadingMore,
+    total,
+    hasMore,
+    loadMore,
     filters,
     setFilters,
     createTask,
