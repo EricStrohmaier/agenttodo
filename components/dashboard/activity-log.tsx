@@ -16,6 +16,18 @@ const ACTION_ICONS: Record<string, string> = {
   unclaimed: "↩️",
 };
 
+function formatDetails(details: Record<string, any>): string {
+  if (details.from_status && details.to_status) {
+    return `status changed from ${details.from_status} to ${details.to_status}`;
+  }
+  if (details.progress !== undefined) {
+    return `progress: ${details.progress}%`;
+  }
+  return Object.entries(details)
+    .map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`)
+    .join(", ");
+}
+
 interface ActivityLogProps {
   taskId: string;
 }
@@ -62,7 +74,7 @@ export function ActivityLog({ taskId }: ActivityLogProps) {
             <span className="font-medium">{log.agent}</span>{" "}
             <span className="text-muted-foreground">{log.action.replace("_", " ")}</span>
             {log.details && Object.keys(log.details).length > 0 && (
-              <span className="text-muted-foreground"> — {JSON.stringify(log.details)}</span>
+              <span className="text-muted-foreground"> — {formatDetails(log.details)}</span>
             )}
           </div>
           <span className="text-muted-foreground shrink-0">{timeAgo(log.created_at)}</span>

@@ -36,7 +36,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-[calc(100dvh)]">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <h1 className="text-lg font-semibold pl-10 md:pl-0">Tasks</h1>
@@ -60,7 +60,14 @@ export default function DashboardPage() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
-        {view === "list" ? (
+        {!loading && tasks.length === 0 && !filters.status && !filters.intent && !filters.agent ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <h2 className="text-lg font-semibold mb-2">Welcome to AgentBoard</h2>
+            <p className="text-sm text-muted-foreground">
+              Create your first task above, or connect an agent via API key.
+            </p>
+          </div>
+        ) : view === "list" ? (
           <TaskList tasks={tasks} loading={loading} onSelect={setSelectedTask} onToggleDone={handleToggleDone} />
         ) : (
           <TaskBoard tasks={tasks} loading={loading} onSelect={setSelectedTask} />

@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { ThemeToggle } from "./theme-toggle";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -20,10 +21,36 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const [openTaskCount, setOpenTaskCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function fetchCount() {
+      try {
+        const res = await fetch("/api/tasks?limit=1");
+        const json = await res.json();
+        if (json.data) {
+          const open = json.data.filter((t: any) => t.status !== "done").length;
+          // Use total count from meta if available, otherwise just show what we know
+          if (json.meta?.total !== undefined) {
+            // meta.total is total matching, but we want open tasks
+            setOpenTaskCount(json.meta.totalOpen ?? open);
+          } else {
+            // Fetch all to count
+            const res2 = await fetch("/api/tasks?limit=500");
+            const json2 = await res2.json();
+            if (json2.data) {
+              setOpenTaskCount(json2.data.filter((t: any) => t.status !== "done").length);
+            }
+          }
+        }
+      } catch {}
+    }
+    fetchCount();
+  }, [pathname]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push("/signin/password_signin");
+    router.push("/signin");
   };
 
   return (
@@ -54,7 +81,12 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
               }`}
             >
               <item.icon className="w-4 h-4" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.label === "Tasks" && openTaskCount !== null && openTaskCount > 0 && (
+                <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">
+                  {openTaskCount}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -62,7 +94,8 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
 
       <Separator className="mx-4 w-auto" />
 
-      <div className="p-3">
+      <div className="p-3 space-y-1">
+        <ThemeToggle />
         <button
           onClick={handleSignOut}
           className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors w-full"

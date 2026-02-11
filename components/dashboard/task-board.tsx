@@ -44,7 +44,7 @@ export function TaskBoard({ tasks, loading, onSelect }: TaskBoardProps) {
             </span>
             <span className="text-xs text-muted-foreground/60">{col.tasks.length}</span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-[calc(100dvh-200px)] overflow-y-auto">
             {col.tasks.map((task) => (
               <TaskCard key={task.id} task={task} onSelect={onSelect} />
             ))}

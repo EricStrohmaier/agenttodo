@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { INTENT_COLORS, PRIORITY_COLORS, INTENT_LABELS } from "@/lib/constants";
 import { PriorityDots } from "./task-row";
+import { timeAgo } from "@/lib/time";
 import type { Task } from "@/types/tasks";
 
 interface TaskCardProps {
@@ -22,6 +23,7 @@ export function TaskCard({ task, onSelect }: TaskCardProps) {
           {INTENT_LABELS[task.intent]}
         </Badge>
         <PriorityDots priority={task.priority} />
+        <span className="text-[10px] text-muted-foreground ml-auto">{timeAgo(task.updated_at)}</span>
       </div>
       {task.assigned_agent && (
         <p className="text-xs text-muted-foreground mt-2 truncate">🤖 {task.assigned_agent}</p>
