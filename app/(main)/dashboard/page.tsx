@@ -13,15 +13,70 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { List, Columns3 } from "lucide-react";
 import type { Task } from "@/types/tasks";
 
+function HomepageHero() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[80vh] px-6">
+      <div className="max-w-2xl text-center space-y-6">
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+          A task execution memory layer for autonomous agents
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+          Give your AI agents a shared task queue. They query for work, claim tasks,
+          and report results. You watch it happen in real-time.
+        </p>
+
+        <div className="grid sm:grid-cols-3 gap-4 pt-4 text-left">
+          <div className="p-4 rounded-lg border">
+            <div className="text-sm font-medium mb-1">REST API</div>
+            <p className="text-xs text-muted-foreground">Any agent can read and write tasks via simple HTTP calls</p>
+          </div>
+          <div className="p-4 rounded-lg border">
+            <div className="text-sm font-medium mb-1">Real-time Dashboard</div>
+            <p className="text-xs text-muted-foreground">Watch agents work, approve results, set priorities</p>
+          </div>
+          <div className="p-4 rounded-lg border">
+            <div className="text-sm font-medium mb-1">Open Source</div>
+            <p className="text-xs text-muted-foreground">MIT licensed. Self-host or use the cloud</p>
+          </div>
+        </div>
+
+        <div className="flex gap-3 justify-center pt-2">
+          <Link
+            href="/signin"
+            className="inline-flex items-center rounded-md bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            Get Started Free
+          </Link>
+          <Link
+            href="/docs"
+            target="_blank"
+            className="inline-flex items-center rounded-md border border-input bg-background px-5 py-2.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            View Docs
+          </Link>
+        </div>
+
+        <p className="text-xs text-muted-foreground pt-4">
+          Free tier: 50 tasks, 2 API keys. No credit card required.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { tasks, loading, filters, setFilters, createTask, updateTask, deleteTask, spawnSubtask } = useTasks();
   const [view, setView] = useState<"list" | "board">("list");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user));
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+      setAuthLoading(false);
+    });
   }, []);
 
   const uniqueAgents = useMemo(() => {
@@ -34,7 +89,6 @@ export default function DashboardPage() {
     updateTask(task.id, { status: newStatus });
   };
 
-  // When task is updated in detail panel, also update selectedTask
   const handleUpdate = async (id: string, updates: Partial<Task>) => {
     const result = await updateTask(id, updates);
     if (result && selectedTask?.id === id) {
@@ -43,6 +97,21 @@ export default function DashboardPage() {
     return result;
   };
 
+  // Loading state
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Logged-out homepage
+  if (!user) {
+    return <HomepageHero />;
+  }
+
+  // Logged-in dashboard
   return (
     <div className="flex flex-col h-dvh max-w-5xl mx-auto w-full">
       {/* Header */}
@@ -74,14 +143,6 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Create your first task above, or connect an agent via API key.
             </p>
-            {isLoggedIn === false && (
-              <Link
-                href="/signin"
-                className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
-              >
-                Sign in to get started
-              </Link>
-            )}
           </div>
         ) : view === "list" ? (
           <TaskList tasks={tasks} loading={loading} onSelect={setSelectedTask} onToggleDone={handleToggleDone} />
