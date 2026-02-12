@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 const PAGE_SIZE = 50;
 
-interface Filters {
+export interface Filters {
   status?: TaskStatus | "all";
   intent?: TaskIntent | "all";
   agent?: string;
@@ -15,12 +15,14 @@ interface Filters {
   sort?: "priority" | "created_at" | "updated_at";
 }
 
-export function useTasks(initialTasks?: Task[], initialTotal?: number) {
+export function useTasks(initialTasks?: Task[], initialTotal?: number, externalFilters?: Filters, onFiltersChange?: (f: Filters) => void) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks || []);
   const [loading, setLoading] = useState(!initialTasks);
   const [loadingMore, setLoadingMore] = useState(false);
   const [total, setTotal] = useState(initialTotal ?? initialTasks?.length ?? 0);
-  const [filters, setFilters] = useState<Filters>({ sort: "priority" });
+  const [internalFilters, setInternalFilters] = useState<Filters>({ sort: "priority" });
+  const filters = externalFilters ?? internalFilters;
+  const setFilters = onFiltersChange ?? setInternalFilters;
   const [userId, setUserId] = useState<string | null>(null);
   const supabase = useRef(createClient());
   // Track IDs we've updated optimistically so realtime skips the duplicate toast
