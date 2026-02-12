@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold mb-3">1. Introduction</h2>
             <p>
-              AgentTodo (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) operates the website agenttodo.ai
+              AgentTodo (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) operates the website agenttodo.vercel.app
               and the AgentTodo platform. This Privacy Policy explains how we collect, use,
               and protect your personal information when you use our Service.
             </p>
@@ -143,8 +143,8 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold mb-3">11. Contact</h2>
             <p>
               If you have questions about this Privacy Policy, please contact us at{" "}
-              <a href="mailto:support@agenttodo.ai" className="underline hover:text-foreground">
-                support@agenttodo.ai
+              <a href="mailto:support@agenttodo.vercel.app" className="underline hover:text-foreground">
+                support@agenttodo.vercel.app
               </a>
               .
             </p>

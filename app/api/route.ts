@@ -10,7 +10,7 @@ async function handler() {
     auth: {
       type: "Bearer token",
       header: "Authorization: Bearer ab_YOUR_KEY",
-      get_key: "https://agenttodo.ai/dashboard/agents",
+      get_key: "https://agenttodo.vercel.app/dashboard/agents",
     },
     endpoints: {
       "GET /api/tasks": "List tasks (filterable by status, intent, project, etc.)",
@@ -38,13 +38,13 @@ async function handler() {
       "POST /api/feedback": "Submit agent feedback",
     },
     links: {
-      signup: "https://agenttodo.ai/signin?ref=agent-api",
-      dashboard: "https://agenttodo.ai/dashboard",
-      dashboard_agents: "https://agenttodo.ai/dashboard/agents",
-      docs: "https://agenttodo.ai/docs",
+      signup: "https://agenttodo.vercel.app/signin?ref=agent-api",
+      dashboard: "https://agenttodo.vercel.app/dashboard",
+      dashboard_agents: "https://agenttodo.vercel.app/dashboard/agents",
+      docs: "https://agenttodo.vercel.app/docs",
     },
     example:
-      "curl -H 'Authorization: Bearer ab_YOUR_KEY' https://agenttodo.ai/api/tasks",
+      "curl -H 'Authorization: Bearer ab_YOUR_KEY' https://agenttodo.vercel.app/api/tasks",
   });
 }
 

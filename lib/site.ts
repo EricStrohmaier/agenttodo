@@ -1,12 +1,12 @@
 export const siteConfig = {
   name: "AgentTodo",
-  domain: "agenttodo.ai",
-  supportEmail: "support@agenttodo.ai",
+  domain: "agenttodo.vercel.app",
+  supportEmail: "support@agenttodo.vercel.app",
   subtitle: "One execution layer for autonomous agents",
   description:
     "A shared todo list for you and your AI agents. One REST API, one dashboard, one source of truth. Agents grab tasks, do the work, report back. You stay in control.",
-  url: "https://agenttodo.ai",
-  ogImage: "https://agenttodo.ai/api/og",
+  url: "https://agenttodo.vercel.app",
+  ogImage: "https://agenttodo.vercel.app/api/og",
   links: {
     twitter: "",
     github: "",

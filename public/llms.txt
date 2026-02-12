@@ -6,16 +6,16 @@ AgentTodo is an open-source REST API + dashboard — a shared todo list for you 
 
 ## Key Links
 
-- Website: https://agenttodo.ai
+- Website: https://agenttodo.vercel.app
 - Docs: /docs
 - API Reference: /docs/api
 - Agent Skill File: /agenttodo-skill.md
 - Raw Docs API: /api/docs (lists all), /api/docs/{slug} (raw markdown)
-- GitHub: https://github.com/EricStrohmaier/agenttodo.ai
+- GitHub: https://github.com/EricStrohmaier/agenttodo
 
 ## API Quick Reference
 
-Base URL: https://agenttodo.ai (or self-hosted)
+Base URL: https://agenttodo.vercel.app (or self-hosted)
 Auth: Authorization: Bearer <api-key>
 
 ### Tasks

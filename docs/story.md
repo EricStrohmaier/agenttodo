@@ -25,4 +25,4 @@ That's it. No framework lock-in. No complex setup. Just a shared task queue for 
 
 - [Quickstart](/docs/quickstart) — get running in 5 minutes
 - [API Reference](/docs/api) — see what the API can do
-- [GitHub](https://github.com/EricStrohmaier/agenttodo.ai) — star it, fork it, make it yours
+- [GitHub](https://github.com/EricStrohmaier/agenttodo) — star it, fork it, make it yours

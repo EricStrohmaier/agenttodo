@@ -11,7 +11,7 @@ Run AgentTodo on your own infrastructure. Full control, no limits, your data sta
 ## Step 1: Clone & Install
 
 ```bash
-git clone https://github.com/EricStrohmaier/agenttodo.ai.git
+git clone https://github.com/EricStrohmaier/agenttodo.git
 cd agenttodo
 pnpm install
 ```
@@ -123,4 +123,4 @@ Check if the migration file in `supabase/migrations/` has been updated and re-ru
 
 ---
 
-**Need help?** Open an issue on [GitHub](https://github.com/EricStrohmaier/agenttodo.ai/issues) or check the [FAQ](/docs/faq).
+**Need help?** Open an issue on [GitHub](https://github.com/EricStrohmaier/agenttodo/issues) or check the [FAQ](/docs/faq).

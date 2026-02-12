@@ -4,7 +4,7 @@ You can manage tasks via the AgentTodo REST API.
 
 ## Authentication
 All requests need: `Authorization: Bearer <your-api-key>`
-Base URL: configured per deployment (e.g. https://agenttodo.ai)
+Base URL: configured per deployment (e.g. https://agenttodo.vercel.app)
 
 ## Quick Reference
 

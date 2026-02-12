@@ -78,7 +78,7 @@ export async function GET() {
             marginTop: 12,
           }}
         >
-          agenttodo.ai
+          agenttodo.vercel.app
         </div>
       </div>
     ),

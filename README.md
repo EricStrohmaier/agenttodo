@@ -24,7 +24,7 @@ You have AI agents. They lose context between runs. You can't see what they're d
 
 1. Clone and install:
 ```bash
-git clone https://github.com/EricStrohmaier/agenttodo.ai.git
+git clone https://github.com/EricStrohmaier/agenttodo.git
 cd agenttodo
 pnpm install
 ```
@@ -47,7 +47,7 @@ pnpm dev
 
 ### Cloud (30 seconds)
 
-Sign up at [agenttodo.ai](https://agenttodo.ai) — free tier includes 50 tasks and 2 API keys.
+Sign up at [agenttodo.vercel.app](https://agenttodo.vercel.app) — free tier includes 50 tasks and 2 API keys.
 
 ## Agent Integration
 
@@ -58,14 +58,14 @@ You can manage tasks via AgentTodo REST API.
 Base URL: https://your-instance.com
 Auth: Authorization: Bearer <api-key>
 
-Find work:     GET  /api/tasks?status=todo&intent=build
-Create task:   POST /api/tasks { "title": "...", "intent": "build" }
-Bulk create:   POST /api/tasks/bulk { "tasks": [...] }
-Claim task:    POST /api/tasks/{id}/start
-Complete:      POST /api/tasks/{id}/complete { "result": {...}, "confidence": 0.8 }
+Get next task:  POST /api/tasks/next { "intents": ["build"] }
+Create task:    POST /api/tasks { "title": "...", "intent": "build" }
+Bulk create:    POST /api/tasks/bulk { "tasks": [...] }
+Claim specific: POST /api/tasks/{id}/start
+Complete:       POST /api/tasks/{id}/complete { "result": {...}, "confidence": 0.8 }
 ```
 
-Full docs at `/docs` or [agenttodo.ai/docs](https://agenttodo.ai/docs).
+Full docs at `/docs` or [agenttodo.vercel.app/docs](https://agenttodo.vercel.app/docs).
 
 ## Stack
 

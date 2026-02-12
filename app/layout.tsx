@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import { siteConfig } from "@/lib/site";
 import { Suspense } from "react";
 import { Inter, DM_Mono } from "next/font/google";
-import { CookieConsent } from "@/components/shared/CookieConsent";
+// import { CookieConsent } from "@/components/shared/CookieConsent";
 import { PostHogPageViewTracker } from "@/components/shared/Providers";
 
 const bodyFont = Inter({
@@ -67,7 +67,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <Toaster richColors closeButton />
         </Suspense>
-        <CookieConsent />
+        {/* <CookieConsent /> */}
         <PostHogPageViewTracker />
       </body>
     </html>

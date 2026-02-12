@@ -20,7 +20,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold mb-3">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using AgentTodo (&quot;the Service&quot;), operated at agenttodo.ai,
+              By accessing or using AgentTodo (&quot;the Service&quot;), operated at agenttodo.vercel.app,
               you agree to be bound by these Terms of Service. If you do not agree to these
               terms, please do not use the Service.
             </p>
@@ -118,8 +118,8 @@ export default function TermsPage() {
             <h2 className="text-lg font-semibold mb-3">11. Contact</h2>
             <p>
               If you have questions about these Terms of Service, please contact us at{" "}
-              <a href="mailto:support@agenttodo.ai" className="underline hover:text-foreground">
-                support@agenttodo.ai
+              <a href="mailto:support@agenttodo.vercel.app" className="underline hover:text-foreground">
+                support@agenttodo.vercel.app
               </a>
               .
             </p>

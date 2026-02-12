@@ -40,7 +40,7 @@ Every step is logged. You can see exactly what the research agent found, what th
   "priority": 3,
   "requires_human_review": true,
   "context": {
-    "research_findings": "https://agenttodo.ai/tasks/research-123",
+    "research_findings": "https://agenttodo.vercel.app/tasks/research-123",
     "target_length": "1500 words",
     "tone": "technical but accessible",
     "publish_to": "blog"
