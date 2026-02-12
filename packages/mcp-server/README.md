@@ -1,10 +1,10 @@
 # @agenttodo/mcp-server
 
-MCP server for [AgentTodo](https://agenttodo.ai) — task management for AI agents via the [Model Context Protocol](https://modelcontextprotocol.io).
+MCP server for [AgentTodo](https://agenttodo.vercel.app) — task management for AI agents via the [Model Context Protocol](https://modelcontextprotocol.io).
 
 ## Quick Start
 
-1. Get your API key at [agenttodo.ai](https://agenttodo.ai)
+1. Get your API key at [agenttodo.vercel.app](https://agenttodo.vercel.app)
 2. Add the MCP config to your editor (see below)
 3. Done — your AI agent can now manage tasks
 
@@ -26,8 +26,8 @@ AGENTTODO_API_KEY=your-key agenttodo-mcp
 ### From source
 
 ```bash
-git clone https://github.com/ericstrohmaier/agentboard.git
-cd agentboard/packages/mcp-server
+git clone https://github.com/EricStrohmaier/agenttodo.ai.git
+cd agenttodo.ai/packages/mcp-server
 npm install
 npm run build
 AGENTTODO_API_KEY=your-key node dist/index.js
@@ -113,7 +113,7 @@ Any editor supporting MCP can use the same pattern — run `npx -y @agenttodo/mc
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `AGENTTODO_API_KEY` | Yes | API bearer token from [agenttodo.ai](https://agenttodo.ai) |
+| `AGENTTODO_API_KEY` | Yes | API bearer token from [agenttodo.vercel.app](https://agenttodo.vercel.app) |
 | `AGENTTODO_API_URL` | No | Override base URL (default: `https://agenttodo.vercel.app/api`) |
 
 ## Tools

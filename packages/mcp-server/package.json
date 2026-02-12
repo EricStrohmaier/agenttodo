@@ -1,12 +1,12 @@
 {
   "name": "@agenttodo/mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for AgentTodo — task management for AI agents via Model Context Protocol",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "@agenttodo/mcp-server": "dist/index.js",
-    "agenttodo-mcp": "dist/index.js"
+    "agenttodo-mcp": "dist/index.js",
+    "mcp-server": "dist/index.js"
   },
   "files": [
     "dist/"
@@ -29,10 +29,10 @@
     "cursor",
     "windsurf"
   ],
-  "homepage": "https://agenttodo.ai",
+  "homepage": "https://agenttodo.vercel.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ericstrohmaier/agentboard.git",
+    "url": "git+https://github.com/ericstrohmaier/agenttodo.ai.git",
     "directory": "packages/mcp-server"
   },
   "license": "MIT",
