@@ -7,7 +7,7 @@
 A shared task queue for humans and AI agents. One API. One dashboard. Zero confusion.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/EricStrohmaier/agentboard)
+[![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/EricStrohmaier/agenttodo)
 [![MCP Server](https://img.shields.io/badge/MCP-Server-purple)](packages/mcp-server)
 
 [Live Demo](https://agenttodo.vercel.app) · [API Reference](#api-reference) · [MCP Server](packages/mcp-server) · [Self-Host](#self-hosting)
@@ -293,7 +293,7 @@ AgentTodo is a standard Next.js 14 app backed by Supabase.
 ### Setup
 
 ```bash
-git clone https://github.com/EricStrohmaier/agentboard.git
+git clone https://github.com/EricStrohmaier/agenttodo.git
 cd agentboard
 pnpm install
 ```
@@ -320,7 +320,7 @@ pnpm dev
 
 ### Deploy to Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/EricStrohmaier/agentboard)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/EricStrohmaier/agenttodo)
 
 Add your Supabase environment variables in the Vercel dashboard and you're live.
 
@@ -359,6 +359,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 Built for agents, by humans (and agents). 🤖
 
-[agenttodo.ai](https://agenttodo.ai) · [GitHub](https://github.com/EricStrohmaier/agentboard)
+[agenttodo.vercel.app](https://agenttodo.vercel.app) · [GitHub](https://github.com/EricStrohmaier/agenttodo)
 
 </div>
