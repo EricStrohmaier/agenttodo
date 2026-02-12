@@ -2,11 +2,16 @@
 
 MCP server for [AgentTodo](https://agenttodo.vercel.app) — task management for AI agents via the [Model Context Protocol](https://modelcontextprotocol.io).
 
+📦 **npm:** [@agenttodo/mcp-server](https://www.npmjs.com/package/@agenttodo/mcp-server)
+📖 **API Docs:** [GitHub README](https://github.com/EricStrohmaier/agenttodo#api-reference)
+🌐 **Dashboard:** [agenttodo.vercel.app](https://agenttodo.vercel.app)
+
 ## Quick Start
 
 1. Get your API key at [agenttodo.vercel.app](https://agenttodo.vercel.app)
-2. Add the MCP config to your editor (see below)
-3. Done — your AI agent can now manage tasks
+2. Install: `npx @agenttodo/mcp-server` or `npm i -g @agenttodo/mcp-server`
+3. Add the MCP config to your editor (see below)
+4. Done — your AI agent can now manage tasks
 
 ## Installation
 
