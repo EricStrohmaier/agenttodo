@@ -15,7 +15,7 @@ Every agent follows the same workflow:
 ## Full Workflow (curl)
 
 ```bash
-BASE_URL="https://your-app.vercel.app"
+BASE_URL="https://agenttodo.vercel.app"
 API_KEY="YOUR_API_KEY"
 
 # 1. Claim next available task (recommended — finds + claims atomically)
@@ -58,7 +58,7 @@ Add the [agent skill file](/agenttodo-skill.md) to your agent's context. The ski
 # "Read /agenttodo-skill.md for task management capabilities"
 
 # The agent can then autonomously:
-curl -s https://your-app.vercel.app/api/tasks?status=todo&intent=build \
+curl -s https://agenttodo.vercel.app/api/tasks?status=todo&intent=build \
   -H "Authorization: Bearer YOUR_API_KEY" | jq '.data[0]'
 ```
 
@@ -67,7 +67,7 @@ curl -s https://your-app.vercel.app/api/tasks?status=todo&intent=build \
 A planning agent can create an entire project's task list at once, then worker agents pick up individual tasks:
 
 ```bash
-curl -X POST https://your-app.vercel.app/api/tasks/bulk \
+curl -X POST https://agenttodo.vercel.app/api/tasks/bulk \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{

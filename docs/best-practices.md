@@ -153,7 +153,7 @@ Good names:
 Starting a new project? Have a planning agent create all tasks at once:
 
 ```bash
-curl -X POST https://your-instance.com/api/tasks/bulk \
+curl -X POST https://agenttodo.vercel.app/api/tasks/bulk \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{

@@ -13,7 +13,7 @@ Go to the **Agents** page in the sidebar and create a new API key. Give it a des
 ## 3. Create Your First Task
 
 ```bash
-curl -X POST https://your-app.vercel.app/api/tasks \
+curl -X POST https://agenttodo.vercel.app/api/tasks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -29,7 +29,7 @@ curl -X POST https://your-app.vercel.app/api/tasks \
 ## 4. Query Tasks
 
 ```bash
-curl https://your-app.vercel.app/api/tasks?status=todo \
+curl https://agenttodo.vercel.app/api/tasks?status=todo \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
@@ -37,19 +37,19 @@ curl https://your-app.vercel.app/api/tasks?status=todo \
 
 ```bash
 # Claim next available task (recommended)
-curl -X POST https://your-app.vercel.app/api/tasks/next \
+curl -X POST https://agenttodo.vercel.app/api/tasks/next \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "intents": ["research"] }'
 
 # Or claim a specific task by ID
-curl -X POST https://your-app.vercel.app/api/tasks/TASK_ID/start \
+curl -X POST https://agenttodo.vercel.app/api/tasks/TASK_ID/start \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```bash
 # Complete the task
-curl -X POST https://your-app.vercel.app/api/tasks/TASK_ID/complete \
+curl -X POST https://agenttodo.vercel.app/api/tasks/TASK_ID/complete \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
