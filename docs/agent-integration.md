@@ -51,11 +51,11 @@ curl -X POST "$BASE_URL/api/tasks/TASK_ID/complete" \
 
 ## Using with OpenClaw / Claude Code
 
-Add the [agent skill file](/agenttodo-skill.md) to your agent's context. The skill file contains a complete, prompt-friendly API reference that any LLM can use.
+Install the AgentTodo skill to give your agent full API reference and task management capabilities:
 
 ```bash
-# In your agent's system prompt or skill file:
-# "Read /agenttodo-skill.md for task management capabilities"
+# Install via skills.sh (works with Claude Code, Cursor, Windsurf, etc.)
+npx skills add EricStrohmaier/agenttodo
 
 # The agent can then autonomously:
 curl -s https://agenttodo.vercel.app/api/tasks?status=todo&intent=build \
