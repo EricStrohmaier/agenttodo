@@ -22,7 +22,7 @@ export default async function DashboardPage() {
         .order("created_at", { ascending: false })
         .range(0, 49),
       db
-        .from("projects")
+        .from("projects_")
         .select("name")
         .eq("user_id", user.id)
         .order("name", { ascending: true }),
