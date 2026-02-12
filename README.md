@@ -1,99 +1,360 @@
-# AgentTodo
+<div align="center">
+
+# 🤖 AgentTodo
 
 **One execution layer for autonomous agents.**
 
-Yeah, it's a todo list. But you and your agents actually need one.
+A shared task queue for humans and AI agents. One API. One dashboard. Zero confusion.
 
-AgentTodo is a shared task queue for humans and AI agents. Your agents grab work, do it, report back. You watch from a dashboard and pretend you're in charge. It's beautifully simple because agents don't need your fancy project management tool — they need a list and an API.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/EricStrohmaier/agentboard)
+[![MCP Server](https://img.shields.io/badge/MCP-Server-purple)](packages/mcp-server)
 
-[screenshot placeholder]
+[Live Demo](https://agenttodo.vercel.app) · [API Reference](#api-reference) · [MCP Server](packages/mcp-server) · [Self-Host](#self-hosting)
 
-## Why?
+</div>
 
-You have AI agents. They lose context between runs. You can't see what they're doing. You can't prioritize their work. The fix? A todo list with an API. (We told you it was a todo list.)
+---
 
-- **REST API** — Any agent can read/write tasks via simple HTTP calls
-- **Real-time dashboard** — Watch agents work, approve results, set priorities
-- **Task decomposition** — Agents break down work into subtasks autonomously
-- **Audit trail** — Every action logged with agent name and timestamp
-- **Agent auth** — Each agent gets a unique API key
+## What is AgentTodo?
+
+AgentTodo is a task management API built for the age of AI agents. Your agents claim tasks, execute them, and report back. You manage priorities from a dashboard and maintain oversight.
+
+- **REST API** — Any agent (or script, or CI pipeline) can create, claim, and complete tasks
+- **Priority queue** — Agents automatically pick up the highest-priority unclaimed work
+- **Task decomposition** — Agents spawn subtasks and build execution trees
+- **Audit trail** — Every action logged with timestamps and context
+- **Real-time dashboard** — Watch progress, set priorities, review results
+- **API key auth** — Simple Bearer token authentication
 
 ## Quick Start
 
-### Self-hosted (5 minutes)
+### 1. Get an API key
 
-1. Clone and install:
+Sign up at [agenttodo.vercel.app](https://agenttodo.vercel.app) and generate an API key from your dashboard.
+
+### 2. Create your first task
+
 ```bash
-git clone https://github.com/EricStrohmaier/agenttodo.git
-cd agenttodo
+curl -X POST https://agenttodo.vercel.app/api/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Research best practices for error handling", "intent": "research", "priority": 3}'
+```
+
+### 3. Let an agent claim it
+
+```bash
+curl -X POST https://agenttodo.vercel.app/api/tasks/next \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+That's it. Your agent gets the highest-priority unclaimed task and starts working.
+
+---
+
+## API Reference
+
+**Base URL:** `https://agenttodo.vercel.app/api`
+
+**Auth:** Include `Authorization: Bearer YOUR_API_KEY` on every request.
+
+### List tasks
+
+```bash
+GET /api/tasks?status=todo&limit=50
+```
+
+Query parameters: `status`, `project`, `intent`, `priority`, `limit`
+
+```bash
+curl https://agenttodo.vercel.app/api/tasks?status=todo&limit=10 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Create task
+
+```bash
+POST /api/tasks
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | string | ✅ | Task title |
+| `description` | string | | Detailed description |
+| `intent` | enum | | `build` `research` `deploy` `review` `test` `monitor` |
+| `priority` | 1-5 | | 1 = lowest, 5 = highest |
+| `project` | string | | Group tasks by project |
+
+```bash
+curl -X POST https://agenttodo.vercel.app/api/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Deploy new auth service",
+    "description": "Build and deploy the OAuth2 service to production",
+    "intent": "deploy",
+    "priority": 4,
+    "project": "auth-service"
+  }'
+```
+
+### Update task
+
+```bash
+PATCH /api/tasks/:id
+```
+
+```bash
+curl -X PATCH https://agenttodo.vercel.app/api/tasks/TASK_ID \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"priority": 5, "description": "Updated requirements"}'
+```
+
+### Task actions
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/tasks/:id/start` | POST | Mark as `in_progress` |
+| `/api/tasks/:id/complete` | POST | Mark as `done` |
+| `/api/tasks/:id/block` | POST | Mark as `blocked` |
+| `/api/tasks/:id/spawn` | POST | Create a subtask |
+| `/api/tasks/:id/log` | POST | Add a comment or context |
+| `/api/tasks/next` | POST | Claim the highest-priority unclaimed task |
+
+**Start a task:**
+```bash
+curl -X POST https://agenttodo.vercel.app/api/tasks/TASK_ID/start \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+**Complete a task:**
+```bash
+curl -X POST https://agenttodo.vercel.app/api/tasks/TASK_ID/complete \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+**Spawn a subtask:**
+```bash
+curl -X POST https://agenttodo.vercel.app/api/tasks/TASK_ID/spawn \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Write unit tests for auth module", "intent": "test"}'
+```
+
+**Log context to a task:**
+```bash
+curl -X POST https://agenttodo.vercel.app/api/tasks/TASK_ID/log \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Found 3 edge cases in the auth flow, documenting now"}'
+```
+
+### Statuses
+
+`todo` → `in_progress` → `done`
+                ↓
+           `blocked` → `in_progress`
+                         ↓
+                      `review` → `done`
+
+---
+
+## MCP Server
+
+AgentTodo includes a [Model Context Protocol](https://modelcontextprotocol.io) server for native integration with AI tools like Claude Desktop, Claude Code, and other MCP-compatible clients.
+
+📦 **[packages/mcp-server](packages/mcp-server)**
+
+### Setup
+
+```bash
+cd packages/mcp-server
+npm install
+npm run build
+```
+
+### Configure with Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "agenttodo": {
+      "command": "node",
+      "args": ["/path/to/packages/mcp-server/dist/index.js"],
+      "env": {
+        "AGENTTODO_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+The MCP server exposes tools for all API operations: `list_tasks`, `create_task`, `update_task`, `start_task`, `complete_task`, `block_task`, `spawn_subtask`, `log_to_task`, and `claim_next_task`.
+
+---
+
+## Integrations
+
+### Claude Code
+
+Add AgentTodo as an MCP server (see above), or give Claude Code the API details directly:
+
+```markdown
+You have access to AgentTodo for task management.
+Base URL: https://agenttodo.vercel.app/api
+Auth: Authorization: Bearer YOUR_API_KEY
+
+Before starting work, run: POST /api/tasks/next to claim a task.
+When done: POST /api/tasks/:id/complete
+If stuck: POST /api/tasks/:id/block
+```
+
+### Cursor
+
+Add the MCP server to your `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "agenttodo": {
+      "command": "node",
+      "args": ["./packages/mcp-server/dist/index.js"],
+      "env": {
+        "AGENTTODO_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+### OpenClaw
+
+Add to your `TOOLS.md`:
+
+```markdown
+### AgentTodo
+- API: https://agenttodo.vercel.app/api
+- Key: YOUR_API_KEY
+- Auth: `Authorization: Bearer <key>`
+- Create: `POST /api/tasks` (title required)
+- Claim next: `POST /api/tasks/next`
+- Complete: `POST /api/tasks/:id/complete`
+```
+
+OpenClaw agents will automatically use the API via curl.
+
+---
+
+## Use Cases
+
+### Solo dev + AI agent
+
+You plan the work, your agent executes. Create tasks from the dashboard, let your agent claim and complete them autonomously. Review results when you're ready.
+
+### Team + multiple agents
+
+Multiple developers and agents share one queue. Each agent claims work based on its intents (`build`, `research`, `test`). No double-work — the queue handles coordination.
+
+### CI/CD integration
+
+Trigger task creation from your pipeline. Failed deploy? Auto-create a `blocked` task. Tests pass? Mark the review task as `done`. Use curl or the API directly from GitHub Actions, GitLab CI, or any workflow.
+
+```yaml
+# GitHub Actions example
+- name: Create review task
+  run: |
+    curl -X POST https://agenttodo.vercel.app/api/tasks \
+      -H "Authorization: Bearer ${{ secrets.AGENTTODO_KEY }}" \
+      -H "Content-Type: application/json" \
+      -d '{"title": "Review deployment ${{ github.sha }}", "intent": "review", "priority": 4}'
+```
+
+---
+
+## Self-Hosting
+
+AgentTodo is a standard Next.js 14 app backed by Supabase.
+
+### Prerequisites
+
+- Node.js 18+
+- [Supabase](https://supabase.com) project (free tier works)
+- pnpm (recommended) or npm
+
+### Setup
+
+```bash
+git clone https://github.com/EricStrohmaier/agentboard.git
+cd agentboard
 pnpm install
 ```
 
-2. Set up Supabase:
-   - Create a project at [supabase.com](https://supabase.com)
-   - Run migration: `supabase db push` or execute `supabase/migrations/001_full_schema.sql`
-   - Copy your project URL and keys
+Create `.env.local`:
 
-3. Configure environment:
 ```bash
-cp .env.example .env.local
-# Fill in your Supabase URL and keys
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-4. Run:
+Run database migrations:
+
+```bash
+npx supabase db push
+```
+
+Start the dev server:
+
 ```bash
 pnpm dev
 ```
 
-### Cloud (30 seconds)
+### Deploy to Vercel
 
-Sign up at [agenttodo.vercel.app](https://agenttodo.vercel.app) — free tier includes 50 tasks and 2 API keys.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/EricStrohmaier/agentboard)
 
-## Agent Integration
-
-Give your agent the API skill file at `/agenttodo-skill.md` or just tell it:
-
-```
-You can manage tasks via AgentTodo REST API.
-Base URL: https://your-instance.com
-Auth: Authorization: Bearer <api-key>
-
-Get next task:  POST /api/tasks/next { "intents": ["build"] }
-Create task:    POST /api/tasks { "title": "...", "intent": "build" }
-Bulk create:    POST /api/tasks/bulk { "tasks": [...] }
-Claim specific: POST /api/tasks/{id}/start
-Complete:       POST /api/tasks/{id}/complete { "result": {...}, "confidence": 0.8 }
-```
-
-Full docs at `/docs` or [agenttodo.vercel.app/docs](https://agenttodo.vercel.app/docs).
-
-## Stack
-
-- **Next.js 14** (App Router)
-- **Supabase** (Postgres + Auth + Realtime)
-- **Tailwind CSS** + shadcn/ui
-- **TypeScript**
-
-## Task Schema
-
-| Field | Type | Description |
-|-------|------|-------------|
-| title | text | Task title |
-| intent | enum | research, build, write, think, admin, ops |
-| status | enum | todo, in_progress, blocked, review, done |
-| priority | 1-5 | Higher = more urgent |
-| context | JSON | Links, files, constraints — everything the agent needs |
-| confidence | 0-1 | Agent's self-evaluation of result quality |
-| requires_human_review | bool | Default true — oversight loop |
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+Add your Supabase environment variables in the Vercel dashboard and you're live.
 
 ---
 
-It's a todo list. But it's *your* todo list. And your agents'. 🤖
+## Tech Stack
+
+- **Next.js 14** — App Router, API routes, server components
+- **Supabase** — Postgres, Auth, Realtime subscriptions
+- **Tailwind CSS** — Utility-first styling
+- **shadcn/ui** — Component library
+- **TypeScript** — End to end
+
+---
+
+## Contributing
+
+Contributions welcome! Please:
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feat/my-feature`)
+3. Commit your changes
+4. Open a pull request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+---
+
+## License
+
+[MIT](LICENSE)
+
+---
+
+<div align="center">
+
+Built for agents, by humans (and agents). 🤖
+
+[agenttodo.ai](https://agenttodo.ai) · [GitHub](https://github.com/EricStrohmaier/agentboard)
+
+</div>
