@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
-import { randomBytes, createHash } from "crypto";
+import { createHash } from "crypto";
+import { newApiKey } from "@/lib/id";
 import { authenticateRequest, getSupabaseClient } from "@/lib/agent-auth";
 import { withCors } from "@/app/api/cors-middleware";
 import { success, error, authError } from "@/lib/api-response";
@@ -28,7 +29,7 @@ async function handler(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     if (!body.name?.trim()) return error("name is required");
 
-    const plainKey = `ab_${randomBytes(32).toString("hex")}`;
+    const plainKey = newApiKey();
     const keyHash = createHash("sha256").update(plainKey).digest("hex");
 
     const { data: apiKey, error: dbErr } = await db
