@@ -26,8 +26,8 @@ AGENTTODO_API_KEY=your-key agenttodo-mcp
 ### From source
 
 ```bash
-git clone https://github.com/EricStrohmaier/agenttodo.ai.git
-cd agenttodo.ai/packages/mcp-server
+git clone https://github.com/EricStrohmaier/agenttodo.git
+cd agenttodo/packages/mcp-server
 npm install
 npm run build
 AGENTTODO_API_KEY=your-key node dist/index.js

@@ -1,6 +1,6 @@
 {
   "name": "@agenttodo/mcp-server",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP server for AgentTodo — task management for AI agents via Model Context Protocol",
   "type": "module",
   "main": "dist/index.js",
