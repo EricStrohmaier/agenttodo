@@ -164,28 +164,32 @@ curl -X POST https://agenttodo.vercel.app/api/tasks/TASK_ID/log \
 
 ## MCP Server
 
-AgentTodo includes a [Model Context Protocol](https://modelcontextprotocol.io) server for native integration with AI tools like Claude Desktop, Claude Code, and other MCP-compatible clients.
+AgentTodo includes a [Model Context Protocol](https://modelcontextprotocol.io) server for native integration with AI editors and agents.
 
-📦 **[packages/mcp-server](packages/mcp-server)**
+📦 **npm:** [`@agenttodo/mcp-server`](https://www.npmjs.com/package/@agenttodo/mcp-server)
 
-### Setup
+### Install (npx — zero install)
 
 ```bash
-cd packages/mcp-server
-npm install
-npm run build
+npx @agenttodo/mcp-server
 ```
 
-### Configure with Claude Desktop
+Or install globally:
 
-Add to your `claude_desktop_config.json`:
+```bash
+npm i -g @agenttodo/mcp-server
+```
+
+### Configure with Claude Desktop / Claude Code
+
+Add to your `claude_desktop_config.json` or `.mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "agenttodo": {
-      "command": "node",
-      "args": ["/path/to/packages/mcp-server/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "@agenttodo/mcp-server"],
       "env": {
         "AGENTTODO_API_KEY": "your-api-key"
       }
