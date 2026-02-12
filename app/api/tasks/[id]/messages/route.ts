@@ -16,6 +16,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
     .select("id")
     .eq("id", id)
     .eq("user_id", auth.data.userId)
+    .is("deleted_at", null)
     .single();
   if (taskErr || !task) return error("Task not found", 404);
 

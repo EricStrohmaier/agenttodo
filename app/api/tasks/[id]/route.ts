@@ -23,11 +23,11 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   const db = getSupabaseClient(auth.data);
 
   if (req.method === "GET") {
-    const { data: task, error: taskErr } = await db.from("tasks").select("*").eq("id", id).eq("user_id", auth.data.userId).single();
+    const { data: task, error: taskErr } = await db.from("tasks").select("*").eq("id", id).eq("user_id", auth.data.userId).is("deleted_at", null).single();
     if (taskErr) return error("Task not found", 404);
 
     const [subtasks, logs, messages, attachments, dependencies] = await Promise.all([
-      db.from("tasks").select("*").eq("parent_task_id", id).eq("user_id", auth.data.userId).order("priority", { ascending: false }),
+      db.from("tasks").select("*").eq("parent_task_id", id).eq("user_id", auth.data.userId).is("deleted_at", null).order("priority", { ascending: false }),
       db.from("activity_log").select("*").eq("task_id", id).eq("user_id", auth.data.userId).order("created_at", { ascending: false }).limit(20),
       db.from("task_messages").select("*").eq("task_id", id).eq("user_id", auth.data.userId).order("created_at", { ascending: true }),
       db.from("task_attachments").select("*").eq("task_id", id).eq("user_id", auth.data.userId).order("created_at", { ascending: true }),
@@ -77,7 +77,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
 
     if (Object.keys(update).length === 0) return error("No valid fields to update");
 
-    const { data: task, error: dbErr } = await db.from("tasks").update(update).eq("id", id).eq("user_id", auth.data.userId).select().single();
+    const { data: task, error: dbErr } = await db.from("tasks").update(update).eq("id", id).eq("user_id", auth.data.userId).is("deleted_at", null).select().single();
     if (dbErr) return error(dbErr.message, 500);
     return success(task);
   }
@@ -85,8 +85,32 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   if (req.method === "DELETE") {
     if (!auth.data.permissions.write) return error("Write permission required", 403);
 
-    const { error: dbErr } = await db.from("tasks").delete().eq("id", id).eq("user_id", auth.data.userId);
+    // Fetch task snapshot before soft-deleting
+    const { data: snapshot, error: snapErr } = await db
+      .from("tasks")
+      .select("title, intent, status, assigned_agent, project")
+      .eq("id", id)
+      .eq("user_id", auth.data.userId)
+      .is("deleted_at", null)
+      .single();
+    if (snapErr) return error("Task not found", 404);
+
+    const { error: dbErr } = await db
+      .from("tasks")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("user_id", auth.data.userId);
     if (dbErr) return error(dbErr.message, 500);
+
+    // Log deletion with snapshot
+    await db.from("activity_log").insert({
+      task_id: id,
+      agent: auth.data.agent,
+      action: "deleted",
+      details: snapshot,
+      user_id: auth.data.userId,
+    });
+
     return success({ deleted: true });
   }
 

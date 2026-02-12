@@ -127,6 +127,7 @@ async function handler(req: NextRequest) {
       .update(patch)
       .in("id", task_ids)
       .eq("user_id", auth.data.userId)
+      .is("deleted_at", null)
       .select();
 
     if (dbErr) return error(dbErr.message, 500);

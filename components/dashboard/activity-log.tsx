@@ -15,6 +15,7 @@ const ACTION_ICONS: Record<string, string> = {
   request_review: "👀",
   unclaimed: "↩️",
   message_sent: "💬",
+  deleted: "🗑️",
 };
 
 function formatDetails(details: Record<string, any>): string {

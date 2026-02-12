@@ -109,6 +109,12 @@ export function useTasks(initialTasks?: Task[], initialTotal?: number) {
             setTotal((prev) => prev + 1);
           } else if (payload.eventType === "UPDATE") {
             const updated = payload.new as Task;
+            // Soft-deleted tasks should be removed from the list
+            if (updated.deleted_at) {
+              setTasks((prev) => prev.filter((t) => t.id !== updated.id));
+              setTotal((prev) => Math.max(0, prev - 1));
+              return;
+            }
             // Always sync the latest data from realtime
             setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
             // Only show toast if this wasn't triggered by our own optimistic update

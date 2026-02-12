@@ -17,7 +17,8 @@ function buildNextTaskQuery(
     .select("*")
     .eq("user_id", userId)
     .eq("status", "todo")
-    .is("assigned_agent", null);
+    .is("assigned_agent", null)
+    .is("deleted_at", null);
 
   if (filters.intents) query = query.in("intent", filters.intents);
   if (filters.project) query = query.eq("project", filters.project);

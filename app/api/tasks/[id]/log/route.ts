@@ -4,7 +4,7 @@ import { withCors } from "@/app/api/cors-middleware";
 import { success, error, authError } from "@/lib/api-response";
 import type { LogAction } from "@/types/tasks";
 
-const VALID_ACTIONS: LogAction[] = ["created", "claimed", "updated", "blocked", "completed", "added_subtask", "request_review", "unclaimed"];
+const VALID_ACTIONS: LogAction[] = ["created", "claimed", "updated", "blocked", "completed", "added_subtask", "request_review", "unclaimed", "deleted"];
 
 async function handler(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authenticateRequest(req);
@@ -18,7 +18,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   if (!body.action || !VALID_ACTIONS.includes(body.action)) return error("Valid action is required");
 
   // Verify task belongs to user
-  const { error: taskErr } = await db.from("tasks").select("id").eq("id", id).eq("user_id", auth.data.userId).single();
+  const { error: taskErr } = await db.from("tasks").select("id").eq("id", id).eq("user_id", auth.data.userId).is("deleted_at", null).single();
   if (taskErr) return error("Task not found", 404);
 
   const { data: log, error: dbErr } = await db

@@ -109,6 +109,11 @@ export function TaskDetailClient({ initialTask, initialSubtasks, initialParentTa
         { event: "UPDATE", schema: "public", table: "tasks", filter: `id=eq.${taskId}` },
         (payload) => {
           const updated = payload.new as Task;
+          if (updated.deleted_at) {
+            toast.info("This task has been deleted");
+            router.push("/dashboard");
+            return;
+          }
           setTask(updated);
         }
       )
@@ -759,7 +764,7 @@ export function TaskDetailClient({ initialTask, initialSubtasks, initialParentTa
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete this task?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. The task and its activity log will be permanently deleted.
+                  The task will be moved to trash. Its activity log will be preserved.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

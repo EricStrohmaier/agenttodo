@@ -556,7 +556,7 @@ export function TaskDetail({ task, open, onClose, onUpdate, onDelete, onSpawnSub
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete this task?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. The task and its activity log will be permanently deleted.
+                  The task will be moved to trash. Its activity log will be preserved.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

@@ -43,7 +43,8 @@ async function handler(req: NextRequest) {
     let query = db
       .from("tasks")
       .select(selectFields, { count: "exact" })
-      .eq("user_id", auth.data.userId);
+      .eq("user_id", auth.data.userId)
+      .is("deleted_at", null);
 
     const status = params.get("status");
     if (status && VALID_STATUSES.includes(status as TaskStatus))

@@ -19,8 +19,8 @@ export default async function TaskDetailPage({ params }: Props) {
   const db = supabaseAdmin();
 
   const [taskRes, subtasksRes, messagesRes, attachmentsRes, dependenciesRes] = await Promise.all([
-    db.from("tasks").select("*").eq("id", id).eq("user_id", user.id).single(),
-    db.from("tasks").select("*").eq("parent_task_id", id).eq("user_id", user.id).order("priority", { ascending: false }),
+    db.from("tasks").select("*").eq("id", id).eq("user_id", user.id).is("deleted_at", null).single(),
+    db.from("tasks").select("*").eq("parent_task_id", id).eq("user_id", user.id).is("deleted_at", null).order("priority", { ascending: false }),
     db.from("task_messages").select("*").eq("task_id", id).eq("user_id", user.id).order("created_at", { ascending: true }),
     db.from("task_attachments").select("*").eq("task_id", id).eq("user_id", user.id).order("created_at", { ascending: true }),
     db.from("task_dependencies").select("*, depends_on:depends_on_task_id(id, title, status)").eq("task_id", id).eq("user_id", user.id),
@@ -47,6 +47,7 @@ export default async function TaskDetailPage({ params }: Props) {
       .select("id, title")
       .eq("id", task.parent_task_id)
       .eq("user_id", user.id)
+      .is("deleted_at", null)
       .single();
     if (parent) {
       parentTask = { id: parent.id, title: parent.title };

@@ -18,6 +18,7 @@ export default async function DashboardPage() {
         .from("tasks")
         .select("id,title,status,intent,priority,project,assigned_agent,human_input_needed,parent_task_id,created_by,updated_at,created_at", { count: "exact" })
         .eq("user_id", user.id)
+        .is("deleted_at", null)
         .order("priority", { ascending: false })
         .order("created_at", { ascending: false })
         .range(0, 49),

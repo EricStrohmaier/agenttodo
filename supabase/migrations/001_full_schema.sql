@@ -4,7 +4,7 @@
 -- === Enums ===
 CREATE TYPE task_intent AS ENUM ('research', 'build', 'write', 'think', 'admin', 'ops', 'monitor', 'test', 'review', 'deploy');
 CREATE TYPE task_status AS ENUM ('todo', 'in_progress', 'blocked', 'review', 'done');
-CREATE TYPE log_action AS ENUM ('created', 'claimed', 'updated', 'blocked', 'completed', 'added_subtask', 'request_review', 'unclaimed', 'message_sent');
+CREATE TYPE log_action AS ENUM ('created', 'claimed', 'updated', 'blocked', 'completed', 'added_subtask', 'request_review', 'unclaimed', 'message_sent', 'deleted');
 CREATE TYPE plan_type AS ENUM ('free', 'pro');
 
 -- === Tasks ===
@@ -33,6 +33,7 @@ CREATE TABLE tasks (
   next_run_at timestamptz,
   claimed_at timestamptz,
   completed_at timestamptz,
+  deleted_at timestamptz DEFAULT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -152,6 +153,7 @@ CREATE INDEX idx_tasks_project ON tasks(project) WHERE project IS NOT NULL;
 CREATE INDEX idx_tasks_human_input ON tasks(human_input_needed) WHERE human_input_needed = true;
 CREATE INDEX idx_tasks_recurrence ON tasks(recurrence) WHERE recurrence IS NOT NULL;
 CREATE INDEX idx_tasks_next_run ON tasks(next_run_at) WHERE next_run_at IS NOT NULL;
+CREATE INDEX idx_tasks_not_deleted ON tasks(user_id, deleted_at) WHERE deleted_at IS NULL;
 
 -- Activity log
 CREATE INDEX idx_activity_log_task ON activity_log(task_id);

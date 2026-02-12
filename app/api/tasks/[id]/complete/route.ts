@@ -13,7 +13,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   const db = getSupabaseClient(auth.data);
   const body = await req.json().catch(() => ({}));
 
-  const { data: task, error: fetchErr } = await db.from("tasks").select("requires_human_review, recurrence").eq("id", id).eq("user_id", auth.data.userId).single();
+  const { data: task, error: fetchErr } = await db.from("tasks").select("requires_human_review, recurrence").eq("id", id).eq("user_id", auth.data.userId).is("deleted_at", null).single();
   if (fetchErr) return error("Task not found", 404);
 
   const update: Record<string, any> = {
@@ -61,6 +61,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
           .select("status, blockers")
           .eq("id", taskId)
           .eq("user_id", auth.data.userId)
+          .is("deleted_at", null)
           .single();
 
         if (blockedTask?.status === "blocked") {

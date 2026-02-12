@@ -399,6 +399,7 @@ export type Database = {
           context: Json | null;
           created_at: string;
           created_by: string;
+          deleted_at: string | null;
           description: string | null;
           human_input_needed: boolean;
           id: string;
@@ -427,6 +428,7 @@ export type Database = {
           context?: Json | null;
           created_at?: string;
           created_by?: string;
+          deleted_at?: string | null;
           description?: string | null;
           human_input_needed?: boolean;
           id?: string;
@@ -455,6 +457,7 @@ export type Database = {
           context?: Json | null;
           created_at?: string;
           created_by?: string;
+          deleted_at?: string | null;
           description?: string | null;
           human_input_needed?: boolean;
           id?: string;
@@ -650,7 +653,8 @@ export type Database = {
         | "added_subtask"
         | "request_review"
         | "unclaimed"
-        | "message_sent";
+        | "message_sent"
+        | "deleted";
       plan_type: "free" | "pro";
       task_intent:
         | "research"
@@ -804,6 +808,7 @@ export const Constants = {
         "request_review",
         "unclaimed",
         "message_sent",
+        "deleted",
       ],
       plan_type: ["free", "pro"],
       task_intent: [

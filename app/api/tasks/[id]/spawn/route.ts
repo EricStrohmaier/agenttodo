@@ -16,7 +16,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ id: str
   if (!Array.isArray(body.tasks) || body.tasks.length === 0) return error("tasks array is required");
 
   // Verify parent exists and belongs to user
-  const { error: fetchErr } = await db.from("tasks").select("id").eq("id", id).eq("user_id", auth.data.userId).single();
+  const { error: fetchErr } = await db.from("tasks").select("id").eq("id", id).eq("user_id", auth.data.userId).is("deleted_at", null).single();
   if (fetchErr) return error("Parent task not found", 404);
 
   const inserts = body.tasks.map((t: CreateTaskInput) => ({

@@ -1,6 +1,6 @@
 export type TaskIntent = "research" | "build" | "write" | "think" | "admin" | "ops" | "monitor" | "test" | "review" | "deploy";
 export type TaskStatus = "todo" | "in_progress" | "blocked" | "review" | "done";
-export type LogAction = "created" | "claimed" | "updated" | "blocked" | "completed" | "added_subtask" | "request_review" | "unclaimed" | "message_sent";
+export type LogAction = "created" | "claimed" | "updated" | "blocked" | "completed" | "added_subtask" | "request_review" | "unclaimed" | "message_sent" | "deleted";
 
 export interface TaskAttachment {
   id: string;
@@ -72,6 +72,7 @@ export interface Task {
   next_run_at: string | null;
   claimed_at: string | null;
   completed_at: string | null;
+  deleted_at: string | null;
   created_at: string;
   updated_at: string;
 }
