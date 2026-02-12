@@ -51,7 +51,7 @@ curl -X POST "$BASE_URL/api/tasks/TASK_ID/complete" \
 
 ## Using with OpenClaw / Claude Code
 
-Install the AgentTodo skill to give your agent full API reference and task management capabilities. See the [skill definition file](../skills/agenttodo/SKILL.md) for the complete prompt-friendly API reference.
+Install the AgentTodo skill to give your agent full API reference and task management capabilities. See the [skill definition file](https://github.com/EricStrohmaier/agenttodo/blob/main/skills/agenttodo/SKILL.md) for the complete prompt-friendly API reference.
 
 ```bash
 # Install via skills.sh (works with Claude Code, Cursor, Windsurf, etc.)
