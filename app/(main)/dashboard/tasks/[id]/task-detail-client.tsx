@@ -210,7 +210,7 @@ export function TaskDetailClient({ initialTask, initialSubtasks, initialParentTa
     setMessageInput("");
 
     const newMessage: TaskMessage = {
-      id: crypto.randomUUID(),
+      id: Math.random().toString(36).slice(2, 14),
       user_id: "",
       task_id: taskId,
       from_agent: "human",

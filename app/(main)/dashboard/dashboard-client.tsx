@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useTasks } from "@/hooks/use-tasks";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { QuickAdd } from "@/components/dashboard/quick-add";
 import { TaskFilters } from "@/components/dashboard/task-filters";
@@ -67,7 +67,38 @@ interface DashboardClientProps {
 }
 
 export function DashboardClient({ user, initialTasks, initialTotal, initialProjects }: DashboardClientProps) {
-  const { tasks, loading, loadingMore, total, hasMore, loadMore, filters, setFilters, createTask, updateTask, deleteTask, spawnSubtask, uploadAttachment, sendMessage } = useTasks(initialTasks, initialTotal);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Read filters from URL search params
+  const filters = useMemo(() => {
+    const f: Record<string, string | undefined> = {};
+    const status = searchParams.get("status");
+    const intent = searchParams.get("intent");
+    const agent = searchParams.get("assigned_agent");
+    const project = searchParams.get("project");
+    const sort = searchParams.get("sort");
+    if (status) f.status = status;
+    if (intent) f.intent = intent;
+    if (agent) f.agent = agent;
+    if (project) f.project = project;
+    f.sort = (sort as "priority" | "created_at" | "updated_at") || "priority";
+    return f;
+  }, [searchParams]);
+
+  // Update URL when filters change
+  const setFilters = useCallback((newFilters: any) => {
+    const params = new URLSearchParams();
+    if (newFilters.status && newFilters.status !== "all") params.set("status", newFilters.status);
+    if (newFilters.intent && newFilters.intent !== "all") params.set("intent", newFilters.intent);
+    if (newFilters.agent) params.set("assigned_agent", newFilters.agent);
+    if (newFilters.project) params.set("project", newFilters.project);
+    if (newFilters.sort && newFilters.sort !== "priority") params.set("sort", newFilters.sort);
+    const qs = params.toString();
+    router.replace(qs ? `/dashboard?${qs}` : "/dashboard");
+  }, [router]);
+
+  const { tasks, loading, loadingMore, total, hasMore, loadMore, createTask, updateTask, deleteTask, spawnSubtask, uploadAttachment, sendMessage } = useTasks(initialTasks, initialTotal, filters, setFilters);
   const [view, setView] = useState<"list" | "board">(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("dashboard-view");
@@ -77,7 +108,6 @@ export function DashboardClient({ user, initialTasks, initialTotal, initialProje
   });
   const [showBanner, setShowBanner] = useState(false);
   const [shiftHeld, setShiftHeld] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     if (!user && typeof window !== "undefined" && !sessionStorage.getItem("banner-dismissed")) {

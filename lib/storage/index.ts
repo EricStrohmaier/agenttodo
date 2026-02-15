@@ -14,7 +14,7 @@
  */
 
 import { createClient } from "@/utils/supabase/server";
-import { v4 as uuidv4 } from "uuid";
+import { nanoid } from "nanoid";
 import { processImage, isImageBuffer } from "./image-processing";
 
 // =============================================================================
@@ -65,8 +65,8 @@ function getExtensionFromMime(mimeType: string): string {
  */
 function generateFilename(prefix: string, extension: string): string {
   const timestamp = Date.now();
-  const uuid = uuidv4().slice(0, 8);
-  return `${prefix}_${timestamp}_${uuid}.${extension}`;
+  const id = nanoid(8);
+  return `${prefix}_${timestamp}_${id}.${extension}`;
 }
 
 // =============================================================================

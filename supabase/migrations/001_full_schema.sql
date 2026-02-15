@@ -1,5 +1,6 @@
 -- AgentTodo: Full schema (single combined migration)
 -- All tables, indexes, RLS policies, functions, triggers, storage, and realtime
+-- Uses nanoid (12-char text) for app record IDs; user_id stays uuid (references auth.users).
 
 -- === Enums ===
 CREATE TYPE task_intent AS ENUM ('research', 'build', 'write', 'think', 'admin', 'ops', 'monitor', 'test', 'review', 'deploy');
@@ -7,9 +8,30 @@ CREATE TYPE task_status AS ENUM ('todo', 'in_progress', 'blocked', 'review', 'do
 CREATE TYPE log_action AS ENUM ('created', 'claimed', 'updated', 'blocked', 'completed', 'added_subtask', 'request_review', 'unclaimed', 'message_sent', 'deleted');
 CREATE TYPE plan_type AS ENUM ('free', 'pro');
 
+-- === Nanoid generation function ===
+CREATE OR REPLACE FUNCTION nanoid(size int DEFAULT 12)
+RETURNS text AS $$
+DECLARE
+  id text := '';
+  i int := 0;
+  alphabet char[] := ARRAY['0','1','2','3','4','5','6','7','8','9',
+    'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p',
+    'q','r','s','t','u','v','w','x','y','z',
+    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
+    'Q','R','S','T','U','V','W','X','Y','Z'];
+  alphabet_len int := 62;
+BEGIN
+  WHILE i < size LOOP
+    id := id || alphabet[1 + floor(random() * alphabet_len)::int];
+    i := i + 1;
+  END LOOP;
+  RETURN id;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
 -- === Tasks ===
 CREATE TABLE tasks (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT nanoid(12),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   title text NOT NULL,
   description text DEFAULT '',
@@ -18,7 +40,7 @@ CREATE TABLE tasks (
   priority integer NOT NULL DEFAULT 3 CHECK (priority >= 1 AND priority <= 5),
   context jsonb DEFAULT '{}',
   metadata jsonb DEFAULT '{}',
-  parent_task_id uuid REFERENCES tasks(id) ON DELETE SET NULL,
+  parent_task_id text REFERENCES tasks(id) ON DELETE SET NULL,
   assigned_agent text,
   created_by text NOT NULL DEFAULT 'human',
   result jsonb,
@@ -29,7 +51,7 @@ CREATE TABLE tasks (
   project text DEFAULT NULL,
   human_input_needed boolean NOT NULL DEFAULT false,
   recurrence jsonb,
-  recurrence_source_id uuid REFERENCES tasks(id) ON DELETE SET NULL,
+  recurrence_source_id text REFERENCES tasks(id) ON DELETE SET NULL,
   next_run_at timestamptz,
   claimed_at timestamptz,
   completed_at timestamptz,
@@ -45,9 +67,9 @@ COMMENT ON COLUMN tasks.next_run_at IS 'Next scheduled run time for recurring ta
 
 -- === Activity Log ===
 CREATE TABLE activity_log (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT nanoid(12),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  task_id text NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   agent text NOT NULL,
   action log_action NOT NULL,
   details jsonb DEFAULT '{}',
@@ -56,7 +78,7 @@ CREATE TABLE activity_log (
 
 -- === API Keys ===
 CREATE TABLE api_keys (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT nanoid(12),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name text NOT NULL,
   key_hash text NOT NULL UNIQUE,
@@ -72,7 +94,7 @@ COMMENT ON COLUMN api_keys.capabilities IS 'Agent capabilities — which task in
 
 -- === User Plans ===
 CREATE TABLE user_plans (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT nanoid(12),
   user_id uuid NOT NULL UNIQUE,
   plan plan_type NOT NULL DEFAULT 'free',
   stripe_customer_id text,
@@ -88,7 +110,7 @@ CREATE TABLE user_plans (
 
 -- === Agent Feedback ===
 CREATE TABLE agent_feedback (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT nanoid(12),
   user_id uuid NOT NULL REFERENCES auth.users(id),
   agent_name text NOT NULL,
   message text NOT NULL,
@@ -97,9 +119,9 @@ CREATE TABLE agent_feedback (
 
 -- === Task Messages ===
 CREATE TABLE task_messages (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT nanoid(12),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  task_id text NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   from_agent text NOT NULL DEFAULT 'human',
   content text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now()
@@ -107,9 +129,9 @@ CREATE TABLE task_messages (
 
 -- === Task Attachments ===
 CREATE TABLE task_attachments (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT nanoid(12),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  task_id text NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   name text NOT NULL,
   type text NOT NULL DEFAULT 'application/octet-stream',
   size integer NOT NULL DEFAULT 0,
@@ -120,7 +142,7 @@ CREATE TABLE task_attachments (
 
 -- === Projects ===
 CREATE TABLE projects_ (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT nanoid(12),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name text NOT NULL,
   description text DEFAULT '',
@@ -130,10 +152,10 @@ CREATE TABLE projects_ (
 
 -- === Task Dependencies ===
 CREATE TABLE task_dependencies (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY DEFAULT nanoid(12),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
-  depends_on_task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  task_id text NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  depends_on_task_id text NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   created_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT no_self_dependency CHECK (task_id != depends_on_task_id),
   CONSTRAINT unique_dependency UNIQUE (task_id, depends_on_task_id)

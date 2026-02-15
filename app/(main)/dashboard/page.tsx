@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createClient } from "@/utils/supabase/server";
 import { supabaseAdmin } from "@/utils/supabase/admin";
 import { DashboardClient } from "./dashboard-client";
@@ -35,11 +36,13 @@ export default async function DashboardPage() {
   }
 
   return (
-    <DashboardClient
-      user={user ? { id: user.id, email: user.email } : null}
-      initialTasks={initialTasks}
-      initialTotal={initialTotal}
-      initialProjects={initialProjects}
-    />
+    <Suspense>
+      <DashboardClient
+        user={user ? { id: user.id, email: user.email } : null}
+        initialTasks={initialTasks}
+        initialTotal={initialTotal}
+        initialProjects={initialProjects}
+      />
+    </Suspense>
   );
 }
